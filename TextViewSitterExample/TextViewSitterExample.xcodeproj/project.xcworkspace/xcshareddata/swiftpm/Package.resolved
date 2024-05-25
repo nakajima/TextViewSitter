@@ -1,0 +1,78 @@
+{
+  "originHash" : "ec2eb85d1a7bcad3de75e2cf07429e987da232ec7f92f5e412f2f0b22fc4bc55",
+  "pins" : [
+    {
+      "identity" : "glyph",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ChimeHQ/Glyph",
+      "state" : {
+        "branch" : "main",
+        "revision" : "c6ec804a4ca57d09065a18fc11bdccb3d15769e5"
+      }
+    },
+    {
+      "identity" : "nsui",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/mattmassicotte/NSUI",
+      "state" : {
+        "branch" : "main",
+        "revision" : "8792b2f789bf03be1be9ecb4df43d2bfe0e5d361"
+      }
+    },
+    {
+      "identity" : "rearrange",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ChimeHQ/Rearrange",
+      "state" : {
+        "branch" : "main",
+        "revision" : "e46be5a1e01bbd170a7113e99c0a5c2b36832fe9"
+      }
+    },
+    {
+      "identity" : "swifttreesitter",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ChimeHQ/SwiftTreeSitter",
+      "state" : {
+        "branch" : "main",
+        "revision" : "bf1030d3f6816945f022dbff97bf62747b3bc0d3"
+      }
+    },
+    {
+      "identity" : "tree-sitter",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/tree-sitter/tree-sitter",
+      "state" : {
+        "revision" : "98be227227af10cc7a269cb3ffb23686c0610b17",
+        "version" : "0.20.9"
+      }
+    },
+    {
+      "identity" : "tree-sitter-html",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/tree-sitter/tree-sitter-html",
+      "state" : {
+        "branch" : "master",
+        "revision" : "e4d834eb4918df01dcad5c27d1b15d56e3bd94cd"
+      }
+    },
+    {
+      "identity" : "tree-sitter-markdown",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/nakajima/tree-sitter-markdown",
+      "state" : {
+        "branch" : "split_parser",
+        "revision" : "94951a34c265442f7055203b825529e624fe0f46"
+      }
+    },
+    {
+      "identity" : "tree-sitter-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/alex-pinkus/tree-sitter-swift",
+      "state" : {
+        "branch" : "with-generated-files",
+        "revision" : "33e56e4e2a6455f3fd4e04cfe5c7a314d498612d"
+      }
+    }
+  ],
+  "version" : 3
+}

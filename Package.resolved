@@ -1,0 +1,42 @@
+{
+  "originHash" : "e88c5ec0aceaca2f1f9c92730508ce1e19426a6d6625c7e763c02f7e05a6b406",
+  "pins" : [
+    {
+      "identity" : "glyph",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ChimeHQ/Glyph",
+      "state" : {
+        "branch" : "main",
+        "revision" : "c6ec804a4ca57d09065a18fc11bdccb3d15769e5"
+      }
+    },
+    {
+      "identity" : "nsui",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/mattmassicotte/NSUI",
+      "state" : {
+        "branch" : "main",
+        "revision" : "8792b2f789bf03be1be9ecb4df43d2bfe0e5d361"
+      }
+    },
+    {
+      "identity" : "tree-sitter-markdown",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/nakajima/tree-sitter-markdown",
+      "state" : {
+        "branch" : "split_parser",
+        "revision" : "94951a34c265442f7055203b825529e624fe0f46"
+      }
+    },
+    {
+      "identity" : "tree-sitter-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/alex-pinkus/tree-sitter-swift",
+      "state" : {
+        "branch" : "with-generated-files",
+        "revision" : "33e56e4e2a6455f3fd4e04cfe5c7a314d498612d"
+      }
+    }
+  ],
+  "version" : 3
+}
