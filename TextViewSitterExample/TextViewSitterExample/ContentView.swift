@@ -35,7 +35,7 @@ struct ContentView: View {
 			}
 			.padding()
 
-			TreeSitterUI(text: self.$text, theme: theme)
+			TextViewSitterUI(text: self.$text, theme: theme)
 		}
 		.onChange(of: sample) {
 			self.text = sample.rawValue

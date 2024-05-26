@@ -10,7 +10,7 @@ import NSUI
 import Observation
 import SwiftUI
 
-public struct TreeSitterUI: NSUIViewControllerRepresentable {
+public struct TextViewSitterUI: NSUIViewControllerRepresentable {
 	@Binding var text: String
 	var theme: Theme
 
