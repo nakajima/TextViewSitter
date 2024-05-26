@@ -13,14 +13,12 @@ import TreeSitterSwift
 class HighlighterParser {
 	let name: String
 	let languageProvider: LanguageProvider
-	let queries: [Query.Definition: Query]
 	var text: String = ""
 	let configuration: LanguageConfiguration
 	let maxNestedDepth = 5
 
 	init(configuration: LanguageConfiguration, languageProvider: LanguageProvider) {
 		self.name = configuration.name
-		self.queries = configuration.queries
 		self.languageProvider = languageProvider
 		self.configuration = configuration
 	}
@@ -42,46 +40,48 @@ class HighlighterParser {
 			return []
 		}
 
-		return captures(parser: parser, in: tree, depth: 0)
+		return captures(parser: parser, language: languageProvider.primaryLanguage, in: tree, depth: 0)
 	}
 
-	func captures(parser: Parser, in tree: Tree, depth: Int) -> [QueryCapture] {
+	func captures(parser: Parser, language config: LanguageConfiguration, in tree: Tree, depth: Int) -> [QueryCapture] {
 		if depth >= maxNestedDepth {
 			return []
 		}
 
 		var result: [QueryCapture] = []
 
-		let injectionsCursor = queries[.injections]!.execute(in: tree, depth: 4).resolve(with: .init(string: text)).injections()
-		var rangesByName: [String: [TSRange]] = [:]
-		for injection in injectionsCursor {
-			rangesByName[injection.name, default: []].append(injection.tsRange)
-		}
-
-		for (name, ranges) in rangesByName {
-			guard let language = languageProvider.find(name: name) else {
-				print("No language found for \(name)")
-				continue
-			}
-
-			parser.includedRanges = ranges
-			try! parser.setLanguage(language)
-			let injectedTree = parser.parse(text)!.copy()!
-
-			let highlights = queries[.highlights]!.execute(in: injectedTree).resolve(with: .init(string: text)).highlights()
-			for h in highlights {
-				print("\(name) injection highlights: \(h.nameComponents)")
-				
-			}
-
-			result.append(contentsOf: captures(parser: parser, in: injectedTree, depth: depth + 1))
-		}
-
-		let highlightsCursor = queries[.highlights]!.execute(in: tree, depth: 4)
+		let highlightsCursor = config.queries[.highlights]!.execute(in: tree, depth: 4)
 		while let match = highlightsCursor.next() {
 			for capture in match.captures {
 				result.append(capture)
 			}
+		}
+
+		let injectionsCursor = config.queries[.injections]!.execute(in: tree, depth: 4).resolve(with: .init(string: text)).injections()
+		var rangesByName: [String: [NamedRange]] = [:]
+		for injection in injectionsCursor {
+			rangesByName[injection.name, default: []].append(injection)
+		}
+
+		for (name, namedRanges) in rangesByName {
+			guard let injectionConfig = languageProvider.find(name: name) else {
+				print("No language found for \(name)")
+				continue
+			}
+
+//			parser.includedRanges = ranges
+			try! parser.setLanguage(injectionConfig.language)
+			parser.includedRanges = namedRanges.map(\.tsRange)
+			let injectedTree = parser.parse(text)!.copy()!
+
+			print("\(name) content: \(namedRanges.map { text[$0.range] })")
+
+			let highlights = injectionConfig.queries[.highlights]!.execute(in: injectedTree).resolve(with: .init(string: text)).highlights()
+			for h in highlights {
+//				print("\(name) injection: \(h.nameComponents) \(text[h.range])")
+			}
+
+			result.append(contentsOf: captures(parser: parser, language: injectionConfig, in: injectedTree, depth: depth + 1))
 		}
 
 		return result
@@ -104,8 +104,8 @@ class LanguageProvider {
 		languagesByName.values.map { $0 }
 	}
 
-	func find(name: String) -> Language? {
-		languagesByName[name]?.language
+	func find(name: String) -> LanguageConfiguration? {
+		languagesByName[name]
 	}
 
 	let languagesByName: [String: LanguageConfiguration] = [
@@ -171,7 +171,7 @@ class Highlighter: NSObject, NSTextStorageDelegate {
 		print("Unknown types: \(unknownStyles)")
 #endif
 		
-		return result.filter { range.contains($0.range.lowerBound) && range.contains($0.range.upperBound) }
+		return result
 	}
 
 	func highlights(at position: Int) -> [Highlight] {

@@ -59,4 +59,4 @@
 	(list_item (paragraph (inline) @text.list))
 ]
 
-(list_item) @listItem
+(list_item) @list-item

@@ -132,7 +132,7 @@ struct KeywordStyle: HighlighterStyle {
 }
 
 public struct ListItemStyle: HighlighterStyle {
-	public let name = "listItem"
+	public let name = "list-item"
 
 	public func attributes(for range: NSRange, theme: Theme, in storage: NSTextStorage) -> [NSAttributedString.Key : Any] {
 		let paragraphStyle = NSMutableParagraphStyle()

@@ -11,8 +11,8 @@ import TextViewSitter
 
 struct ContentView: View {
 	@Environment(\.modelContext) private var modelContext
-	@State private var sample: Samples = .basic
-	@State private var text = Samples.basic.rawValue
+	@State private var sample: Samples = .superBasic
+	@State private var text = Samples.superBasic.rawValue
 
 	var body: some View {
 		VStack {

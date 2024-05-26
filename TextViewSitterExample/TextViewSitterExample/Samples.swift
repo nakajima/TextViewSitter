@@ -9,6 +9,10 @@ import Foundation
 
 #if DEBUG
 enum Samples: String, CaseIterable {
+	case superBasic = """
+	a **b** _c_
+	"""
+
 	case basic = """
 	# Here's a header
 
@@ -21,6 +25,8 @@ enum Samples: String, CaseIterable {
 	print("Sup \\(name)")
 	}
 	```
+
+	## Cool
 	"""
 
 	case list = """
