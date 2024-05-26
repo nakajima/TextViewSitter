@@ -1,5 +1,5 @@
 {
-  "originHash" : "ec2eb85d1a7bcad3de75e2cf07429e987da232ec7f92f5e412f2f0b22fc4bc55",
+  "originHash" : "70e6b191e959ffcdcac60fd02b26c053760d0615c4b1c0bc3cb794a263842914",
   "pins" : [
     {
       "identity" : "glyph",
@@ -58,10 +58,10 @@
     {
       "identity" : "tree-sitter-markdown",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/nakajima/tree-sitter-markdown",
+      "location" : "https://github.com/tree-sitter-grammars/tree-sitter-markdown",
       "state" : {
         "branch" : "split_parser",
-        "revision" : "94951a34c265442f7055203b825529e624fe0f46"
+        "revision" : "7fe453beacecf02c86f7736439f238f5bb8b5c9b"
       }
     },
     {
@@ -71,6 +71,15 @@
       "state" : {
         "branch" : "with-generated-files",
         "revision" : "33e56e4e2a6455f3fd4e04cfe5c7a314d498612d"
+      }
+    },
+    {
+      "identity" : "tree-sitter-yaml",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/tree-sitter-grammars/tree-sitter-yaml",
+      "state" : {
+        "branch" : "master",
+        "revision" : "7b03feefd36b5f155465ca736c6304aca983b267"
       }
     }
   ],

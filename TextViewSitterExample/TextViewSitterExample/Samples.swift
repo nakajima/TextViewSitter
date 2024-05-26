@@ -11,6 +11,8 @@ import Foundation
 	enum Samples: String, CaseIterable {
 		case superBasic = """
 		a **b** _c_
+
+		d **e** _f_
 		"""
 
 		case basic = """

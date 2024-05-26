@@ -4,122 +4,28 @@
 import NSUI
 import Rearrange
 import SwiftTreeSitter
-import TreeSitterHTML
-import TreeSitterMarkdown
-import TreeSitterMarkdownInline
-import TreeSitterSwift
 
-// Keeps a copy of the tree around in case we want to play with it
-class HighlighterParser {
-	let name: String
-	let languageProvider: LanguageProvider
-	var text: String = ""
-	let configuration: LanguageConfiguration
-	let maxNestedDepth = 5
-
-	init(configuration: LanguageConfiguration, languageProvider: LanguageProvider) {
-		self.name = configuration.name
-		self.languageProvider = languageProvider
-		self.configuration = configuration
-	}
-
-	func load(text: String) {
-		self.text = text
-	}
-
-	func captures() -> [QueryCapture] {
-		if text.isEmpty {
-			return []
+extension Tree {
+	func debugDescription(text: String) -> String {
+		guard let rootNode else {
+			return "<Tree: no root node>"
 		}
 
-		let parser = Parser()
-		try! parser.setLanguage(languageProvider.primaryLanguage.language)
+		var result = "- Tree includedRanges=\(includedRanges)\n"
 
-		guard let tree = parser.parse(text)?.copy() else {
-			assertionFailure("No tree for parser: \(self)")
-			return []
-		}
+		func append(_ node: Node, indent: Int) {
+			let space = Array(repeating: "  ", count: indent).joined(separator: "")
+			result += "\(space)- \(node.nodeType!) \(node.tsRange.debugDescription) (\(text[node.range])\n"
 
-		return captures(parser: parser, language: languageProvider.primaryLanguage, in: tree, depth: 0)
-	}
-
-	func captures(parser: Parser, language config: LanguageConfiguration, in tree: Tree, depth: Int) -> [QueryCapture] {
-		if depth >= maxNestedDepth {
-			return []
-		}
-
-		var result: [QueryCapture] = []
-
-		let highlightsCursor = config.queries[.highlights]!.execute(in: tree, depth: 4)
-		while let match = highlightsCursor.next() {
-			for capture in match.captures {
-				result.append(capture)
+			node.enumerateChildren { child in
+				append(child, indent: indent + 1)
 			}
 		}
 
-		let injectionsCursor = config.queries[.injections]!.execute(in: tree, depth: 4).resolve(with: .init(string: text)).injections()
-		var rangesByName: [String: [NamedRange]] = [:]
-		for injection in injectionsCursor {
-			rangesByName[injection.name, default: []].append(injection)
-		}
-
-		for (name, namedRanges) in rangesByName {
-			guard let injectionConfig = languageProvider.find(name: name) else {
-				print("No language found for \(name)")
-				continue
-			}
-
-			try! parser.setLanguage(injectionConfig.language)
-			parser.includedRanges = namedRanges.map(\.tsRange)
-			let injectedTree = parser.parse(text)!.copy()!
-			result.append(contentsOf: captures(parser: parser, language: injectionConfig, in: injectedTree, depth: depth + 1))
-		}
+		append(rootNode, indent: 1)
 
 		return result
 	}
-}
-
-class LanguageProvider {
-	#if os(macOS)
-	static let queriesURL = Bundle.module.bundleURL.appending(path: "Contents/Resources")
-	#else
-	static let queriesURL = Bundle.module.bundleURL
-	#endif
-
-	var primary: String
-	var parsersByName: [String: HighlighterParser]!
-
-	init(primary: String) {
-		self.primary = primary
-	}
-
-	var primaryLanguage: LanguageConfiguration {
-		languagesByName[primary]!
-	}
-
-	var languages: [LanguageConfiguration] {
-		languagesByName.values.map { $0 }
-	}
-
-	func find(name: String) -> LanguageConfiguration? {
-		languagesByName[name]
-	}
-
-	let languagesByName: [String: LanguageConfiguration] = [
-		// TODO: Make this configurable
-		"markdown": try! LanguageConfiguration(
-			.init(tree_sitter_markdown()), name: "markdown", queriesURL: LanguageProvider.queriesURL.appending(path: "Markdown")
-		),
-		"markdown_inline": try! LanguageConfiguration(
-			.init(tree_sitter_markdown_inline()), name: "markdown_inline", queriesURL: LanguageProvider.queriesURL.appending(path: "MarkdownInline")
-		),
-		"html": try! LanguageConfiguration(
-			.init(tree_sitter_html()), name: "html", queriesURL: LanguageProvider.queriesURL.appending(path: "HTML")
-		),
-		"swift": try! LanguageConfiguration(
-			.init(tree_sitter_swift()), name: "swift", queriesURL: LanguageProvider.queriesURL.appending(path: "Swift")
-		),
-	]
 }
 
 class Highlighter: NSObject, NSTextStorageDelegate {
@@ -131,7 +37,6 @@ class Highlighter: NSObject, NSTextStorageDelegate {
 	var knownHighlights: [Highlight] = []
 
 	init(textStorage: NSTextStorage, theme: Theme, styles: [String: any Style]) {
-		print(Bundle.module.bundleURL)
 		self.textStorage = textStorage
 		self.theme = theme
 		self.styles = styles
@@ -149,28 +54,28 @@ class Highlighter: NSObject, NSTextStorageDelegate {
 		let captures = parser.captures()
 		for capture in captures {
 			let name = capture.nameComponents.joined(separator: ".")
-			if let style = styles[name] {
-				result.append(
-					Highlight(
-						name: name,
-						range: capture.range,
-						style: style.attributes(
-							for: capture.range,
-							theme: theme,
-							in: textStorage
-						)
-					)
+			let style = styles[name]
+			result.append(
+				Highlight(
+					name: name,
+					nameComponents: capture.nameComponents,
+					range: capture.range,
+					style: style?.attributes(
+						for: capture.range,
+						theme: theme,
+						in: textStorage
+					) ?? [:]
 				)
-			} else {
+			)
+			if style == nil {
 				unknownStyles.insert(name)
-
 			}
 		}
 
 		#if DEBUG
-		if !unknownStyles.isEmpty {
-			print("Unknown types: \(unknownStyles)")
-		}
+			if !unknownStyles.isEmpty {
+				print("Unknown types: \(unknownStyles)")
+			}
 		#endif
 
 		return result
@@ -182,7 +87,7 @@ class Highlighter: NSObject, NSTextStorageDelegate {
 
 	func textStorage(_: NSTextStorage, willProcessEditing _: NSTextStorage.EditActions, range _: NSRange, changeInLength _: Int) {}
 
-	func textStorage(_ textStorage: NSTextStorage, didProcessEditing actions: NSTextStorage.EditActions, range _: NSRange, changeInLength _: Int) {
+	func textStorage(_: NSTextStorage, didProcessEditing actions: NSTextStorage.EditActions, range _: NSRange, changeInLength _: Int) {
 		guard actions.contains(.editedCharacters) else {
 			return
 		}
@@ -203,6 +108,6 @@ class Highlighter: NSObject, NSTextStorageDelegate {
 			textStorage.addAttributes(highlight.style, range: highlight.range)
 		}
 
-		self.knownHighlights = highlights
+		knownHighlights = highlights
 	}
 }

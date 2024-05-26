@@ -9,7 +9,7 @@ import Foundation
 import NSUI
 
 public struct Highlight: Hashable, Equatable {
-	public static func ==(lhs: Highlight, rhs: Highlight) -> Bool {
+	public static func == (lhs: Highlight, rhs: Highlight) -> Bool {
 		lhs.name == rhs.name && lhs.range == rhs.range
 	}
 
@@ -19,6 +19,7 @@ public struct Highlight: Hashable, Equatable {
 	}
 
 	public var name: String
+	public var nameComponents: [String]
 	public var range: NSRange
 	public var style: [NSAttributedString.Key: Any]
 }

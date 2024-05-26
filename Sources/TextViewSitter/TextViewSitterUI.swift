@@ -10,42 +10,60 @@ import NSUI
 import Observation
 import SwiftUI
 
-public struct TextViewSitterUI: NSUIViewControllerRepresentable {
-	@Binding var text: String
+public protocol TextViewSitterTextModel: AnyObject, Identifiable {
+	var id: ID { get }
+	var text: String { get set }
+	func didChange(text: String)
+}
+
+public extension TextViewSitterTextModel {
+	func didChange(text: String) {
+		self.text = text
+	}
+}
+
+public struct TextViewSitterUI<Model: TextViewSitterTextModel>: NSUIViewControllerRepresentable {
+	public typealias NSUIViewControllerType = TextViewSitterController<Model>
+
+	var model: Model
+
+	@Binding var caretState: CaretState
 	var theme: Theme
 
-	public init(text: Binding<String>, theme: Theme) {
-		self._text = text
+	public init(model: Model, caretState: Binding<CaretState>? = nil, theme: Theme) {
+		self.model = model
+		self._caretState = caretState ?? Binding<CaretState>(get: { CaretState() }, set: { _ in })
 		self.theme = theme
 	}
 
-	@Observable public class Coordinator {
-		var text: Binding<String>
-		var controller: TextViewSitterController!
-
-		init(text: Binding<String>, theme: Theme) {
-			self.text = text
-			self.controller = TextViewSitterController(
-				text: text.wrappedValue,
-				styles: StyleBuilder.default, // TODO: Make this configurable
-				theme: theme,
-				textChangeCallback: { text in
-					self.text.wrappedValue = text
-					self.text.update()
+	public func makeNSUIViewController(context _: Context) -> TextViewSitterController<Model> {
+		TextViewSitterController(
+			model: model,
+			styles: StyleBuilder.default, // TODO: Make this configurable
+			theme: theme,
+			textChangeCallback: { text in
+				DispatchQueue.main.async {
+					model.didChange(text: text)
 				}
-			)
+			},
+			caretChangeCallback: { caret in
+				DispatchQueue.main.async {
+					self.caretState = caret
+				}
+			}
+		)
+	}
+
+	public func updateNSUIViewController(_ controller: TextViewSitterController<Model>, context _: Context) {
+		let theme = self.theme != controller.theme ? theme : nil
+		let text = controller.model.id == model.id ? nil : model.text
+
+		if text != nil {
+			print("controller.model.id = \(controller.model.id), model.id = \(model.id)")
 		}
-	}
 
-	public func makeCoordinator() -> Coordinator {
-		Coordinator(text: $text, theme: theme)
-	}
-
-	public func makeNSUIViewController(context: Context) -> TextViewSitterController {
-		context.coordinator.controller
-	}
-
-	public func updateNSUIViewController(_: TextViewSitterController, context: Context) {
-		context.coordinator.controller.load(text: text, theme: theme)
+		if text != nil || theme != nil {
+			controller.load(model: model, theme: theme)
+		}
 	}
 }

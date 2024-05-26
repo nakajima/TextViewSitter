@@ -1,6 +1,6 @@
 //
-//  File.swift
-//  
+//  StyleBuilder.swift
+//
 //
 //  Created by Pat Nakajima on 5/25/24.
 //
@@ -34,13 +34,13 @@ extension Style {
 
 		var attributes: [NSAttributedString.Key: Any] = [
 			.foregroundColor: color,
-			.font: font
+			.font: font,
 		]
 
 		return attributes.merging(refinement(for: range, theme: theme, in: storage), uniquingKeysWith: { key, _ in key })
 	}
 
-	func refinement(for range: NSRange, theme: Theme, in storage: NSTextStorage) -> [NSAttributedString.Key: Any] {
+	func refinement(for _: NSRange, theme _: Theme, in _: NSTextStorage) -> [NSAttributedString.Key: Any] {
 		[:]
 	}
 }
@@ -100,9 +100,9 @@ struct StyleBuilder {
 
 public struct ListItemStyle: Style {
 	#if os(macOS)
-	public var color: NSUIColor = .textColor
+		public var color: NSUIColor = .textColor
 	#else
-	public var color: NSUIColor = NSUIColor(Color.primary)
+		public var color: NSUIColor = NSUIColor(Color.primary)
 	#endif
 	public var traits: Set<FontTrait> = []
 
