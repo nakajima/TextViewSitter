@@ -8,7 +8,6 @@
 import XCTest
 
 final class TextViewSitterExampleUITestsLaunchTests: XCTestCase {
-
     override class var runsForEachTargetApplicationUIConfiguration: Bool {
         true
     }

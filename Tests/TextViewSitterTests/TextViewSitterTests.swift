@@ -1,5 +1,5 @@
-import XCTest
 @testable import TextViewSitter
+import XCTest
 
 final class TextViewSitterTests: XCTestCase {
     func testExample() throws {
