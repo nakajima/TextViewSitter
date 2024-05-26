@@ -9,7 +9,7 @@ import Foundation
 import NSUI
 
 extension NSRange {
-    init(textStorage: NSTextStorage) {
-        self.init(location: 0, length: textStorage.length)
-    }
+	init(textStorage: NSTextStorage) {
+		self.init(location: 0, length: textStorage.length)
+	}
 }

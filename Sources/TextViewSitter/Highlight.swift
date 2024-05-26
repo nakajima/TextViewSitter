@@ -9,7 +9,7 @@ import Foundation
 import NSUI
 
 public struct Highlight {
-    var name: String
-    var range: NSRange
-    var style: [NSAttributedString.Key: Any]
+	var name: String
+	var range: NSRange
+	var style: [NSAttributedString.Key: Any]
 }

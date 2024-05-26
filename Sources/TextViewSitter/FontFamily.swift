@@ -9,37 +9,37 @@ import Foundation
 import NSUI
 
 public protocol FontFamily {
-    var name: String { get }
-    func regular(ofSize: CGFloat) -> NSUIFont
-    func bold(ofSize: CGFloat) -> NSUIFont
-    func italics(ofSize: CGFloat) -> NSUIFont
+	var name: String { get }
+	func regular(ofSize: CGFloat) -> NSUIFont
+	func bold(ofSize: CGFloat) -> NSUIFont
+	func italics(ofSize: CGFloat) -> NSUIFont
 }
 
 public struct FontFamilyDefault: FontFamily {
-    public var name = "Default"
+	public var name = "Default"
 
-    public func regular(ofSize: CGFloat) -> NSUIFont {
-        NSUIFont.monospacedSystemFont(ofSize: ofSize, weight: .regular)
-    }
+	public func regular(ofSize: CGFloat) -> NSUIFont {
+		NSUIFont.monospacedSystemFont(ofSize: ofSize, weight: .regular)
+	}
 
-    public func bold(ofSize: CGFloat) -> NSUIFont {
-        NSUIFont.monospacedSystemFont(ofSize: ofSize, weight: .bold)
-    }
+	public func bold(ofSize: CGFloat) -> NSUIFont {
+		NSUIFont.monospacedSystemFont(ofSize: ofSize, weight: .bold)
+	}
 
-    public func italics(ofSize: CGFloat) -> NSUIFont {
-        NSUIFont.monospacedSystemFont(ofSize: ofSize, weight: .regular).italics(ofSize: ofSize)
-    }
+	public func italics(ofSize: CGFloat) -> NSUIFont {
+		NSUIFont.monospacedSystemFont(ofSize: ofSize, weight: .regular).italics(ofSize: ofSize)
+	}
 
-    public init() {}
+	public init() {}
 }
 
 public extension FontFamily where Self == FontFamilyDefault {
-    static var `default`: FontFamilyDefault { FontFamilyDefault() }
+	static var `default`: FontFamilyDefault { FontFamilyDefault() }
 }
 
 public extension NSUIFont {
-    func italics(ofSize: CGFloat) -> NSUIFont {
-        let descriptor = NSUIFont.monospacedSystemFont(ofSize: ofSize, weight: .regular).fontDescriptor.nsuiWithSymbolicTraits(.traitItalic) ?? NSUIFont.monospacedSystemFont(ofSize: ofSize, weight: .regular).fontDescriptor
-        return NSUIFont(nsuiDescriptor: descriptor, size: ofSize) ?? NSUIFont.monospacedSystemFont(ofSize: ofSize, weight: .regular)
-    }
+	func italics(ofSize: CGFloat) -> NSUIFont {
+		let descriptor = NSUIFont.monospacedSystemFont(ofSize: ofSize, weight: .regular).fontDescriptor.nsuiWithSymbolicTraits(.traitItalic) ?? NSUIFont.monospacedSystemFont(ofSize: ofSize, weight: .regular).fontDescriptor
+		return NSUIFont(nsuiDescriptor: descriptor, size: ofSize) ?? NSUIFont.monospacedSystemFont(ofSize: ofSize, weight: .regular)
+	}
 }

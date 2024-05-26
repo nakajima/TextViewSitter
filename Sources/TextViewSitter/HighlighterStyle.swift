@@ -11,164 +11,164 @@ import Rearrange
 import SwiftUI
 
 public protocol HighlighterStyle {
-    var name: String { get }
-    func attributes(for range: NSRange, theme: Theme, in storage: NSTextStorage) -> [NSAttributedString.Key: Any]
+	var name: String { get }
+	func attributes(for range: NSRange, theme: Theme, in storage: NSTextStorage) -> [NSAttributedString.Key: Any]
 }
 
 struct LinkStyle: HighlighterStyle {
-    let name = "text.reference"
+	let name = "text.reference"
 
-    func attributes(for _: NSRange, theme: Theme, in _: NSTextStorage) -> [NSAttributedString.Key: Any] {
-        [.foregroundColor: theme.colors.linkColor]
-    }
+	func attributes(for _: NSRange, theme: Theme, in _: NSTextStorage) -> [NSAttributedString.Key: Any] {
+		[.foregroundColor: theme.colors.linkColor]
+	}
 }
 
 struct CodeStyle: HighlighterStyle {
-    let name = "text.code"
+	let name = "text.code"
 
-    func attributes(for _: NSRange, theme _: Theme, in _: NSTextStorage) -> [NSAttributedString.Key: Any] {
-        [
-            .foregroundColor: NSUIColor.cyan,
-        ]
-    }
+	func attributes(for _: NSRange, theme _: Theme, in _: NSTextStorage) -> [NSAttributedString.Key: Any] {
+		[
+			.foregroundColor: NSUIColor.cyan,
+		]
+	}
 }
 
 struct TextLiteralStyle: HighlighterStyle {
-    let name = "text.literal"
-    func attributes(for _: NSRange, theme _: Theme, in _: NSTextStorage) -> [NSAttributedString.Key: Any] {
-        [
-            .foregroundColor: NSUIColor.cyan,
-        ]
-    }
+	let name = "text.literal"
+	func attributes(for _: NSRange, theme _: Theme, in _: NSTextStorage) -> [NSAttributedString.Key: Any] {
+		[
+			.foregroundColor: NSUIColor.cyan,
+		]
+	}
 }
 
 struct BoldStyle: HighlighterStyle {
-    let name = "text.strong"
+	let name = "text.strong"
 
-    func attributes(for _: NSRange, theme: Theme, in _: NSTextStorage) -> [NSAttributedString.Key: Any] {
-        [.font: theme.fonts.bold()]
-    }
+	func attributes(for _: NSRange, theme: Theme, in _: NSTextStorage) -> [NSAttributedString.Key: Any] {
+		[.font: theme.fonts.bold()]
+	}
 }
 
 struct TitleStyle: HighlighterStyle {
-    let name = "text.title"
+	let name = "text.title"
 
-    func attributes(for _: NSRange, theme: Theme, in _: NSTextStorage) -> [NSAttributedString.Key: Any] {
-        [
-            .font: theme.fonts.bold(),
-        ]
-    }
+	func attributes(for _: NSRange, theme: Theme, in _: NSTextStorage) -> [NSAttributedString.Key: Any] {
+		[
+			.font: theme.fonts.bold(),
+		]
+	}
 }
 
 struct StrongStyle: HighlighterStyle {
-    let name = "text.strong"
+	let name = "text.strong"
 
-    func attributes(for _: NSRange, theme: Theme, in _: NSTextStorage) -> [NSAttributedString.Key: Any] {
-        [
-            .font: theme.fonts.bold(),
-        ]
-    }
+	func attributes(for _: NSRange, theme: Theme, in _: NSTextStorage) -> [NSAttributedString.Key: Any] {
+		[
+			.font: theme.fonts.bold(),
+		]
+	}
 }
 
 struct EmphasisStyle: HighlighterStyle {
-    let name = "text.emphasis"
+	let name = "text.emphasis"
 
-    func attributes(for _: NSRange, theme: Theme, in _: NSTextStorage) -> [NSAttributedString.Key: Any] {
-        [
-            .font: theme.fonts.italics(),
-        ]
-    }
+	func attributes(for _: NSRange, theme: Theme, in _: NSTextStorage) -> [NSAttributedString.Key: Any] {
+		[
+			.font: theme.fonts.italics(),
+		]
+	}
 }
 
 struct PunctuationSpecialStyle: HighlighterStyle {
-    let name = "punctuation.special"
+	let name = "punctuation.special"
 
-    func attributes(for _: NSRange, theme _: Theme, in _: NSTextStorage) -> [NSAttributedString.Key: Any] {
-        [
-            .foregroundColor: NSUIColor.gray,
-        ]
-    }
+	func attributes(for _: NSRange, theme _: Theme, in _: NSTextStorage) -> [NSAttributedString.Key: Any] {
+		[
+			.foregroundColor: NSUIColor.gray,
+		]
+	}
 }
 
 struct PunctuationDelimiterStyle: HighlighterStyle {
-    let name = "punctuation.delimiter"
+	let name = "punctuation.delimiter"
 
-    public let priority = 2
-    func attributes(for _: NSRange, theme _: Theme, in _: NSTextStorage) -> [NSAttributedString.Key: Any] {
-        [
-            .foregroundColor: NSUIColor.gray,
-        ]
-    }
+	public let priority = 2
+	func attributes(for _: NSRange, theme _: Theme, in _: NSTextStorage) -> [NSAttributedString.Key: Any] {
+		[
+			.foregroundColor: NSUIColor.gray,
+		]
+	}
 }
 
 struct CodeBlockStyle: HighlighterStyle {
-    let name = "text.code"
+	let name = "text.code"
 
-    func attributes(for _: NSRange, theme: Theme, in _: NSTextStorage) -> [NSAttributedString.Key: Any] {
-        [
-            .foregroundColor: theme.colors.textColor,
-        ]
-    }
+	func attributes(for _: NSRange, theme: Theme, in _: NSTextStorage) -> [NSAttributedString.Key: Any] {
+		[
+			.foregroundColor: theme.colors.textColor,
+		]
+	}
 }
 
 struct MethodStyle: HighlighterStyle {
-    let name = "method"
+	let name = "method"
 
-    func attributes(for _: NSRange, theme _: Theme, in _: NSTextStorage) -> [NSAttributedString.Key: Any] {
-        [
-            .foregroundColor: NSUIColor.cyan,
-        ]
-    }
+	func attributes(for _: NSRange, theme _: Theme, in _: NSTextStorage) -> [NSAttributedString.Key: Any] {
+		[
+			.foregroundColor: NSUIColor.cyan,
+		]
+	}
 }
 
 struct KeywordStyle: HighlighterStyle {
-    let name = "keyword"
+	let name = "keyword"
 
-    func attributes(for _: NSRange, theme _: Theme, in _: NSTextStorage) -> [NSAttributedString.Key: Any] {
-        [
-            .foregroundColor: NSUIColor(Color.pink),
-        ]
-    }
+	func attributes(for _: NSRange, theme _: Theme, in _: NSTextStorage) -> [NSAttributedString.Key: Any] {
+		[
+			.foregroundColor: NSUIColor(Color.pink),
+		]
+	}
 }
 
 public struct ListItemStyle: HighlighterStyle {
-    public let name = "list-item"
+	public let name = "list-item"
 
-    public func attributes(for range: NSRange, theme: Theme, in storage: NSTextStorage) -> [NSAttributedString.Key: Any] {
-        let paragraphStyle = NSMutableParagraphStyle()
+	public func attributes(for range: NSRange, theme: Theme, in storage: NSTextStorage) -> [NSAttributedString.Key: Any] {
+		let paragraphStyle = NSMutableParagraphStyle()
 
-        if let line = storage.string[range] {
-            var indentationLevel: CGFloat = 0
-            var seenSpace = false
-            for character in line {
-                if seenSpace, !character.isWhitespace {
-                    break
-                }
+		if let line = storage.string[range] {
+			var indentationLevel: CGFloat = 0
+			var seenSpace = false
+			for character in line {
+				if seenSpace, !character.isWhitespace {
+					break
+				}
 
-                indentationLevel += 1
+				indentationLevel += 1
 
-                if character.isWhitespace {
-                    seenSpace = true
-                }
-            }
+				if character.isWhitespace {
+					seenSpace = true
+				}
+			}
 
-            paragraphStyle.firstLineHeadIndent = 0 // Indent for the first line
-            paragraphStyle.headIndent = theme.letterWidth * indentationLevel // Indent for the wrapped lines
-            paragraphStyle.lineSpacing = theme.lineSpacing
-        }
+			paragraphStyle.firstLineHeadIndent = 0 // Indent for the first line
+			paragraphStyle.headIndent = theme.letterWidth * indentationLevel // Indent for the wrapped lines
+			paragraphStyle.lineSpacing = theme.lineSpacing
+		}
 
-        return [
-            .paragraphStyle: paragraphStyle,
-        ]
-    }
+		return [
+			.paragraphStyle: paragraphStyle,
+		]
+	}
 }
 
 struct TagStyle: HighlighterStyle {
-    let name = "tag"
+	let name = "tag"
 
-    func attributes(for _: NSRange, theme _: Theme, in _: NSTextStorage) -> [NSAttributedString.Key: Any] {
-        [
-            .foregroundColor: NSUIColor.red,
-        ]
-    }
+	func attributes(for _: NSRange, theme _: Theme, in _: NSTextStorage) -> [NSAttributedString.Key: Any] {
+		[
+			.foregroundColor: NSUIColor.red,
+		]
+	}
 }
