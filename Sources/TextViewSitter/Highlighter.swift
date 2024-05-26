@@ -177,7 +177,7 @@ class Highlighter: NSObject, NSTextStorageDelegate {
 	}
 
 	func highlights(at position: Int) -> [Highlight] {
-		highlights(for: .init(textStorage: textStorage)).filter { $0.range.contains(position) }
+		knownHighlights.filter { $0.range.contains(position) }
 	}
 
 	func textStorage(_: NSTextStorage, willProcessEditing _: NSTextStorage.EditActions, range _: NSRange, changeInLength _: Int) {}

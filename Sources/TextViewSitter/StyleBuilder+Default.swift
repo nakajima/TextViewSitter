@@ -20,6 +20,7 @@ extension StyleBuilder {
 			theme["punctuation.special"] = .secondary
 			theme["punctuation.delimiter"] = .secondary
 			theme["list-item"] = ListItemStyle()
+			theme["none"] = .primary
 
 			// Code
 			theme["comment"] = .secondary
