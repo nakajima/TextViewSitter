@@ -99,7 +99,11 @@ struct StyleBuilder {
 }
 
 public struct ListItemStyle: Style {
+	#if os(macOS)
 	public var color: NSUIColor = .textColor
+	#else
+	public var color: NSUIColor = NSUIColor(Color.primary)
+	#endif
 	public var traits: Set<FontTrait> = []
 
 	public init() {}

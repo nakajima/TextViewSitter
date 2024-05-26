@@ -12,22 +12,24 @@ import SwiftUI
 
 public struct TreeSitterUI: NSUIViewControllerRepresentable {
 	@Binding var text: String
+	var theme: Theme
 
-	public init(text: Binding<String>) {
-		_text = text
+	public init(text: Binding<String>, theme: Theme) {
+		self._text = text
+		self.theme = theme
 	}
 
 	@Observable public class Coordinator {
 		var text: String
 		var controller: TextViewSitterController!
 
-		init(text: String) {
+		init(text: String, theme: Theme) {
 			self.text = text
 			self.controller = TextViewSitterController(
 				text: text,
 				styles: StyleBuilder.default, // TODO: Make this configurable
+				theme: theme,
 				textChangeCallback: { text in
-					print("textChangeCallback: \(text)")
 					self.text = text
 				}
 			)
@@ -35,7 +37,7 @@ public struct TreeSitterUI: NSUIViewControllerRepresentable {
 	}
 
 	public func makeCoordinator() -> Coordinator {
-		Coordinator(text: text)
+		Coordinator(text: text, theme: theme)
 	}
 
 	public func makeNSUIViewController(context: Context) -> TextViewSitterController {
@@ -43,6 +45,6 @@ public struct TreeSitterUI: NSUIViewControllerRepresentable {
 	}
 
 	public func updateNSUIViewController(_: TextViewSitterController, context: Context) {
-		context.coordinator.controller.load(text: text)
+		context.coordinator.controller.load(text: text, theme: theme)
 	}
 }

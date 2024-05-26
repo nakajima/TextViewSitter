@@ -9,7 +9,7 @@ import Foundation
 import NSUI
 import SwiftUI
 
-public struct ColorSet {
+public struct ColorSet: Equatable {
 	public let textColor: NSUIColor
 	public let linkColor: NSUIColor
 	public let backgroundColor: NSUIColor
@@ -23,8 +23,8 @@ public struct ColorSet {
 
 public extension ColorSet {
 	static let `default` = ColorSet(
-		textColor: NSColor(Color.primary),
-		linkColor: NSUIColor.controlAccentColor,
+		textColor: NSUIColor(Color.primary),
+		linkColor: NSUIColor(Color.accentColor),
 		backgroundColor: .systemBackground
 	)
 }

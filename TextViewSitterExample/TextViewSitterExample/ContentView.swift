@@ -13,18 +13,29 @@ struct ContentView: View {
 	@Environment(\.modelContext) private var modelContext
 	@State private var sample: Samples = .superBasic
 	@State private var text = Samples.superBasic.rawValue
+	@State private var theme = Theme.default
 
 	var body: some View {
 		VStack {
-			Picker("Sample", selection: $sample) {
-				ForEach(Samples.allCases, id: \.self) { sample in
-					Text(title(for: sample))
+			HStack {
+				Picker("Sample", selection: $sample) {
+					ForEach(Samples.allCases, id: \.self) { sample in
+						Text(title(for: sample))
+					}
+				}
+				.pickerStyle(.segmented)
+				Button("Smaller") {
+					if theme.fontSize > 8 {
+						theme.fontSize -= 8
+					}
+				}
+				Button("Bigger") {
+					theme.fontSize += 8
 				}
 			}
-			.pickerStyle(.segmented)
 			.padding()
 
-			TreeSitterUI(text: self.$text)
+			TreeSitterUI(text: self.$text, theme: theme)
 		}
 		.onChange(of: sample) {
 			self.text = sample.rawValue

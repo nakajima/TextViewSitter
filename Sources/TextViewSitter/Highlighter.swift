@@ -80,6 +80,12 @@ class HighlighterParser {
 }
 
 class LanguageProvider {
+	#if os(macOS)
+	static let queriesURL = Bundle.module.bundleURL.appending(path: "Contents/Resources")
+	#else
+	static let queriesURL = Bundle.module.bundleURL
+	#endif
+
 	var primary: String
 	var parsersByName: [String: HighlighterParser]!
 
@@ -102,29 +108,30 @@ class LanguageProvider {
 	let languagesByName: [String: LanguageConfiguration] = [
 		// TODO: Make this configurable
 		"markdown": try! LanguageConfiguration(
-			.init(tree_sitter_markdown()), name: "markdown", queriesURL: Bundle.module.bundleURL.appending(path: "Contents/Resources/Markdown")
+			.init(tree_sitter_markdown()), name: "markdown", queriesURL: LanguageProvider.queriesURL.appending(path: "Markdown")
 		),
 		"markdown_inline": try! LanguageConfiguration(
-			.init(tree_sitter_markdown_inline()), name: "markdown_inline", queriesURL: Bundle.module.bundleURL.appending(path: "Contents/Resources/MarkdownInline")
+			.init(tree_sitter_markdown_inline()), name: "markdown_inline", queriesURL: LanguageProvider.queriesURL.appending(path: "MarkdownInline")
 		),
 		"html": try! LanguageConfiguration(
-			.init(tree_sitter_html()), name: "html", queriesURL: Bundle.module.bundleURL.appending(path: "Contents/Resources/HTML")
+			.init(tree_sitter_html()), name: "html", queriesURL: LanguageProvider.queriesURL.appending(path: "HTML")
 		),
 		"swift": try! LanguageConfiguration(
-			.init(tree_sitter_swift()), name: "swift", queriesURL: Bundle.module.bundleURL.appending(path: "Contents/Resources/Swift")
+			.init(tree_sitter_swift()), name: "swift", queriesURL: LanguageProvider.queriesURL.appending(path: "Swift")
 		),
 	]
 }
 
 class Highlighter: NSObject, NSTextStorageDelegate {
 	let textStorage: NSTextStorage
-	let theme: Theme
+	var theme: Theme
 	let styles: [String: any Style]
 	let parser: HighlighterParser
 	let languageProvider = LanguageProvider(primary: "markdown")
 	var knownHighlights: [Highlight] = []
 
 	init(textStorage: NSTextStorage, theme: Theme, styles: [String: any Style]) {
+		print(Bundle.module.bundleURL)
 		self.textStorage = textStorage
 		self.theme = theme
 		self.styles = styles
@@ -173,13 +180,17 @@ class Highlighter: NSObject, NSTextStorageDelegate {
 		highlights(for: .init(textStorage: textStorage)).filter { $0.range.contains(position) }
 	}
 
-	func textStorage(_: NSTextStorage, willProcessEditing _: NSTextStorageEditActions, range _: NSRange, changeInLength _: Int) {}
+	func textStorage(_: NSTextStorage, willProcessEditing _: NSTextStorage.EditActions, range _: NSRange, changeInLength _: Int) {}
 
-	func textStorage(_ textStorage: NSTextStorage, didProcessEditing actions: NSTextStorageEditActions, range _: NSRange, changeInLength _: Int) {
+	func textStorage(_ textStorage: NSTextStorage, didProcessEditing actions: NSTextStorage.EditActions, range _: NSRange, changeInLength _: Int) {
 		guard actions.contains(.editedCharacters) else {
 			return
 		}
 
+		applyStyles()
+	}
+
+	func applyStyles() {
 		parser.load(text: textStorage.string)
 
 		// Remove existing highlights

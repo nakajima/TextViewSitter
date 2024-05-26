@@ -30,7 +30,7 @@ public class TextViewSitterController: NSUIViewController {
 	/// Called when the text changes
 	public var textChangeCallback: ChangeCallback?
 
-	public init(text: String, styles: [String: any Style], theme: Theme = .default, textChangeCallback: ChangeCallback?) {
+	public init(text: String, styles: [String: any Style], theme: Theme, textChangeCallback: ChangeCallback?) {
 		self.textView = TextView()
 		self.textChangeCallback = textChangeCallback
 
@@ -48,17 +48,29 @@ public class TextViewSitterController: NSUIViewController {
 		// Setup initial styles
 		textView.typingAttributes = theme.typingAttributes
 
-		load(text: text)
+		load(text: text, theme: theme)
 
 		NotificationCenter.default.addObserver(forName: NSTextStorage.didProcessEditingNotification, object: textStorage, queue: .main) { _ in
-			//			textChangeCallback?(self.textStorage.string)
+			textChangeCallback?(self.textStorage.string)
 		}
 	}
 
-	func load(text: String) {
+	func load(text: String, theme: Theme) {
 		textStorage.beginEditing()
-		textStorage.setAttributedString(.init(string: text))
-		textStorage.addAttributes(theme.typingAttributes, range: NSRange(textStorage: textStorage))
+
+		if theme != self.theme {
+			// TODO: This crashes if it happens while the textStorage is laying out. We don't love that.
+			textView.typingAttributes = theme.typingAttributes
+			textStorage.setAttributes(theme.typingAttributes, range: NSRange(textStorage: textStorage))
+			highlighter.theme = theme
+			highlighter.applyStyles()
+		}
+
+		if text != textStorage.string {
+			textStorage.setAttributedString(.init(string: text))
+			textStorage.addAttributes(theme.typingAttributes, range: NSRange(textStorage: textStorage))
+		}
+
 		textStorage.endEditing()
 	}
 
