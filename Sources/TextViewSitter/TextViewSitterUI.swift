@@ -25,20 +25,7 @@ public struct TreeSitterUI: NSUIViewControllerRepresentable {
 			self.text = text
 			self.controller = TextViewSitterController(
 				text: text,
-				styles: .init(styles: [
-					BoldStyle(),
-					EmphasisStyle(),
-					PunctuationDelimiterStyle(),
-					PunctuationSpecialStyle(),
-					TitleStyle(),
-					LinkStyle(),
-					TextLiteralStyle(),
-					CodeStyle(),
-					ListItemStyle(),
-					TagStyle(),
-					MethodStyle(),
-					KeywordStyle(),
-				]), // TODO: Make this configurable
+				styles: StyleBuilder.default, // TODO: Make this configurable
 				textChangeCallback: { text in
 					print("textChangeCallback: \(text)")
 					self.text = text

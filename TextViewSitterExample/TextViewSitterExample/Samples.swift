@@ -22,7 +22,7 @@ import Foundation
 
 		```swift
 		func sup(name: String) {
-		print("Sup \\(name)")
+			print("Sup \\(name)")
 		}
 		```
 

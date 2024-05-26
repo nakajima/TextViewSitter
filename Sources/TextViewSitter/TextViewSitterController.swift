@@ -30,7 +30,7 @@ public class TextViewSitterController: NSUIViewController {
 	/// Called when the text changes
 	public var textChangeCallback: ChangeCallback?
 
-	public init(text: String, styles: HighlighterStyleContainer, theme: Theme = .default, textChangeCallback: ChangeCallback?) {
+	public init(text: String, styles: [String: any Style], theme: Theme = .default, textChangeCallback: ChangeCallback?) {
 		self.textView = TextView()
 		self.textChangeCallback = textChangeCallback
 
@@ -105,7 +105,7 @@ extension TextViewSitterController: NSUITextViewDelegate {
 		let highlights = highlighter.highlights(at: selection.rangeValue.location)
 
 		if !highlights.isEmpty {
-			print("highlights for selection: \(highlights)")
+			print("highlights for selection: \(highlights.map(\.name))")
 		}
 	}
 }

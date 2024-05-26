@@ -31,6 +31,7 @@ public struct Theme {
 	public var lineSpacing: CGFloat
 	public var fontFamily: any FontFamily
 	public var colors: ColorSet
+	public var styles: [String: any Style] = [:]
 
 	public init(
 		fontSize: CGFloat = 16,

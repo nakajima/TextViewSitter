@@ -8,8 +8,17 @@
 import Foundation
 import NSUI
 
-public struct Highlight {
-	var name: String
-	var range: NSRange
-	var style: [NSAttributedString.Key: Any]
+public struct Highlight: Hashable, Equatable {
+	public static func ==(lhs: Highlight, rhs: Highlight) -> Bool {
+		lhs.name == rhs.name && lhs.range == rhs.range
+	}
+
+	public func hash(into hasher: inout Hasher) {
+		hasher.combine(name)
+		hasher.combine(range)
+	}
+
+	public var name: String
+	public var range: NSRange
+	public var style: [NSAttributedString.Key: Any]
 }

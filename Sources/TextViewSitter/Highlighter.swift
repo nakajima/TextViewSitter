@@ -69,18 +69,9 @@ class HighlighterParser {
 				continue
 			}
 
-			//			parser.includedRanges = ranges
 			try! parser.setLanguage(injectionConfig.language)
 			parser.includedRanges = namedRanges.map(\.tsRange)
 			let injectedTree = parser.parse(text)!.copy()!
-
-			print("\(name) content: \(namedRanges.map { text[$0.range] })")
-
-			let highlights = injectionConfig.queries[.highlights]!.execute(in: injectedTree).resolve(with: .init(string: text)).highlights()
-			for h in highlights {
-				//				print("\(name) injection: \(h.nameComponents) \(text[h.range])")
-			}
-
 			result.append(contentsOf: captures(parser: parser, language: injectionConfig, in: injectedTree, depth: depth + 1))
 		}
 
@@ -128,11 +119,12 @@ class LanguageProvider {
 class Highlighter: NSObject, NSTextStorageDelegate {
 	let textStorage: NSTextStorage
 	let theme: Theme
-	let styles: HighlighterStyleContainer
+	let styles: [String: any Style]
 	let parser: HighlighterParser
 	let languageProvider = LanguageProvider(primary: "markdown")
+	var knownHighlights: [Highlight] = []
 
-	init(textStorage: NSTextStorage, theme: Theme, styles: HighlighterStyleContainer) {
+	init(textStorage: NSTextStorage, theme: Theme, styles: [String: any Style]) {
 		self.textStorage = textStorage
 		self.theme = theme
 		self.styles = styles
@@ -150,7 +142,7 @@ class Highlighter: NSObject, NSTextStorageDelegate {
 		let captures = parser.captures()
 		for capture in captures {
 			let name = capture.nameComponents.joined(separator: ".")
-			if let style = styles.style(for: name) {
+			if let style = styles[name] {
 				result.append(
 					Highlight(
 						name: name,
@@ -164,11 +156,14 @@ class Highlighter: NSObject, NSTextStorageDelegate {
 				)
 			} else {
 				unknownStyles.insert(name)
+
 			}
 		}
 
 		#if DEBUG
+		if !unknownStyles.isEmpty {
 			print("Unknown types: \(unknownStyles)")
+		}
 		#endif
 
 		return result
@@ -180,13 +175,23 @@ class Highlighter: NSObject, NSTextStorageDelegate {
 
 	func textStorage(_: NSTextStorage, willProcessEditing _: NSTextStorageEditActions, range _: NSRange, changeInLength _: Int) {}
 
-	func textStorage(_ textStorage: NSTextStorage, didProcessEditing _: NSTextStorageEditActions, range _: NSRange, changeInLength _: Int) {
+	func textStorage(_ textStorage: NSTextStorage, didProcessEditing actions: NSTextStorageEditActions, range _: NSRange, changeInLength _: Int) {
+		guard actions.contains(.editedCharacters) else {
+			return
+		}
+
 		parser.load(text: textStorage.string)
+
+		// Remove existing highlights
+		let fullRange = NSRange(textStorage: textStorage)
+		textStorage.setAttributes(theme.typingAttributes, range: fullRange)
 
 		let highlights = highlights(for: NSRange(textStorage: textStorage))
 
 		for highlight in highlights {
 			textStorage.addAttributes(highlight.style, range: highlight.range)
 		}
+
+		self.knownHighlights = highlights
 	}
 }
