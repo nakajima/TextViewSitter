@@ -20,24 +20,25 @@ public struct TextViewSitterUI: NSUIViewControllerRepresentable {
 	}
 
 	@Observable public class Coordinator {
-		var text: String
+		var text: Binding<String>
 		var controller: TextViewSitterController!
 
-		init(text: String, theme: Theme) {
+		init(text: Binding<String>, theme: Theme) {
 			self.text = text
 			self.controller = TextViewSitterController(
-				text: text,
+				text: text.wrappedValue,
 				styles: StyleBuilder.default, // TODO: Make this configurable
 				theme: theme,
 				textChangeCallback: { text in
-					self.text = text
+					self.text.wrappedValue = text
+					self.text.update()
 				}
 			)
 		}
 	}
 
 	public func makeCoordinator() -> Coordinator {
-		Coordinator(text: text, theme: theme)
+		Coordinator(text: $text, theme: theme)
 	}
 
 	public func makeNSUIViewController(context: Context) -> TextViewSitterController {
