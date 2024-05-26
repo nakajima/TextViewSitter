@@ -58,6 +58,7 @@ class Highlighter: NSObject, NSTextStorageDelegate {
 			result.append(
 				Highlight(
 					name: name,
+					nodeType: capture.node.nodeType,
 					nameComponents: capture.nameComponents,
 					range: capture.range,
 					style: style?.attributes(

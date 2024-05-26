@@ -7,6 +7,7 @@
 
 import Foundation
 import NSUI
+import SwiftTreeSitter
 
 public struct Highlight: Hashable, Equatable {
 	public static func == (lhs: Highlight, rhs: Highlight) -> Bool {
@@ -19,6 +20,7 @@ public struct Highlight: Hashable, Equatable {
 	}
 
 	public var name: String
+	public var nodeType: String?
 	public var nameComponents: [String]
 	public var range: NSRange
 	public var style: [NSAttributedString.Key: Any]

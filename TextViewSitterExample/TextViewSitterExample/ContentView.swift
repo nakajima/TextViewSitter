@@ -56,8 +56,8 @@ struct EditorView: View {
 			}
 			.safeAreaInset(edge: .bottom) {
 				HStack {
-					Spacer()
 					Text("Position: \(caret.position)")
+					Text("Nodes: \(caret.highlights.compactMap(\.nodeType))")
 					Text("Highlights: \(caret.highlights.map(\.name))")
 				}
 				.padding(.bottom, 12)
