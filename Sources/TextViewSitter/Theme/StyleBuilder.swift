@@ -9,20 +9,20 @@ import Foundation
 import NSUI
 import SwiftUI
 
-public enum FontTrait {
+public enum FontTrait: Sendable {
 	case bold, italic
 }
 
-public protocol Style {
+public protocol Style: Sendable {
 	var color: NSUIColor? { get set }
 	var traits: Set<FontTrait> { get set }
 
-	func refinement(for range: NSRange, theme: Theme, in storage: NSTextStorage) -> [NSAttributedString.Key: Any]
+	func refinement(for range: NSRange, theme: Theme, in storage: NSTextStorage) -> [NSAttributedString.Key: any Sendable]
 }
 
 extension Style {
-	func attributes(for range: NSRange, theme: Theme, in storage: NSTextStorage) -> [NSAttributedString.Key: Any] {
-		var attributes: [NSAttributedString.Key: Any] = [:]
+	func attributes(for range: NSRange, theme: Theme, in storage: NSTextStorage) -> [NSAttributedString.Key: any Sendable] {
+		var attributes: [NSAttributedString.Key: any Sendable] = [:]
 
 		var font: NSUIFont?
 
@@ -45,7 +45,7 @@ extension Style {
 		return attributes.merging(refinement(for: range, theme: theme, in: storage), uniquingKeysWith: { _, key in key })
 	}
 
-	func refinement(for _: NSRange, theme _: Theme, in _: NSTextStorage) -> [NSAttributedString.Key: Any] {
+	public func refinement(for _: NSRange, theme _: Theme, in _: NSTextStorage) -> [NSAttributedString.Key: any Sendable] {
 		[:]
 	}
 }
@@ -115,7 +115,7 @@ public struct ListItemStyle: Style {
 
 	public init() {}
 
-	public func refinement(for range: NSRange, theme: Theme, in storage: NSTextStorage) -> [NSAttributedString.Key: Any] {
+	public func refinement(for range: NSRange, theme: Theme, in storage: NSTextStorage) -> [NSAttributedString.Key: any Sendable] {
 		let paragraphStyle = NSMutableParagraphStyle()
 
 		if let line = storage.string[range] {
@@ -139,7 +139,7 @@ public struct ListItemStyle: Style {
 		}
 
 		return [
-			.paragraphStyle: paragraphStyle,
+			.paragraphStyle: paragraphStyle as NSParagraphStyle,
 		]
 	}
 }

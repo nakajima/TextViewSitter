@@ -8,15 +8,14 @@ import TreeSitterMarkdownInline
 import TreeSitterSwift
 import TreeSitterYAML
 
-class LanguageProvider {
+final class LanguageProvider: Sendable {
 	#if os(macOS)
 		static let queriesURL = Bundle.module.bundleURL.appending(path: "Contents/Resources")
 	#else
 		static let queriesURL = Bundle.module.bundleURL
 	#endif
 
-	var primary: String
-	var parsersByName: [String: HighlighterParser]!
+	let primary: String
 
 	init(primary: String) {
 		self.primary = primary

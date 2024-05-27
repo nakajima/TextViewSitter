@@ -2,6 +2,7 @@
 // https://docs.swift.org/swift-book
 
 import NSUI
+import os
 import Rearrange
 import SwiftTreeSitter
 
@@ -15,7 +16,7 @@ extension Tree {
 
 		func append(_ node: Node, indent: Int) {
 			let space = Array(repeating: "  ", count: indent).joined(separator: "")
-			result += "\(space)- \(node.nodeType!) \(node.tsRange.debugDescription) (\(text[node.range])\n"
+			result += "\(space)- \(node.nodeType!) \(node.tsRange.debugDescription) (\(String(describing: text[node.range]))\n"
 
 			node.enumerateChildren { child in
 				append(child, indent: indent + 1)
@@ -28,15 +29,42 @@ extension Tree {
 	}
 }
 
-class Highlighter: NSObject {
-	var theme: Theme
+final class Highlighter: NSObject, Sendable {
 	let parser: HighlighterParser
 	let languageProvider = LanguageProvider(primary: "markdown")
-	var knownHighlights: [Highlight] = []
-	var highlightTask: Task<Void, any Error>?
 
-	init(theme: Theme) {
-		self.theme = theme
+	let _theme = OSAllocatedUnfairLock(initialState: Theme.default)
+	var theme: Theme {
+		get {
+			_theme.withLock { $0 }
+		}
+		set {
+			_theme.withLock { $0 = newValue }
+		}
+	}
+
+	let _knownHighlights = OSAllocatedUnfairLock<[Highlight]>(initialState: [])
+	var knownHighlights: [Highlight] {
+		get {
+			_knownHighlights.withLock { $0 }
+		}
+		set {
+			_knownHighlights.withLock { $0 = newValue }
+		}
+	}
+
+	let _highlightTask = OSAllocatedUnfairLock<Task<Void, any Error>?>(initialState: nil)
+	var highlightTask: Task<Void, any Error>? {
+		get {
+			_highlightTask.withLock { $0 }
+		}
+
+		set {
+			_highlightTask.withLock { $0 = newValue }
+		}
+	}
+
+	override init() {
 		self.parser = HighlighterParser(
 			configuration: languageProvider.primaryLanguage,
 			languageProvider: languageProvider
@@ -46,12 +74,12 @@ class Highlighter: NSObject {
 	}
 
 	func highlight(_ textStorage: NSTextStorage) {
-		highlights(for: textStorage) { highlights in
+		highlights(for: textStorage) { _ in
 			self.applyStyles(in: textStorage)
 		}
 	}
 
-	func highlights(for textStorage: NSTextStorage, result: @MainActor @escaping ([Highlight]) -> Void) {
+	func highlights(for textStorage: NSTextStorage, result: @Sendable @MainActor @escaping ([Highlight]) -> Void) {
 		let theme = theme
 		let parser = parser
 		parser.load(text: textStorage.string)

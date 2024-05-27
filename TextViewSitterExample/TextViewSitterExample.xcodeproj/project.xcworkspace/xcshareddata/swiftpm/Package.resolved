@@ -1,15 +1,6 @@
 {
-  "originHash" : "70e6b191e959ffcdcac60fd02b26c053760d0615c4b1c0bc3cb794a263842914",
+  "originHash" : "718c02e790af42fcf07e75a91d9773659140f7d4526ff06cb9c8cd7c4522f9a4",
   "pins" : [
-    {
-      "identity" : "glyph",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/ChimeHQ/Glyph",
-      "state" : {
-        "branch" : "main",
-        "revision" : "c6ec804a4ca57d09065a18fc11bdccb3d15769e5"
-      }
-    },
     {
       "identity" : "nsui",
       "kind" : "remoteSourceControl",

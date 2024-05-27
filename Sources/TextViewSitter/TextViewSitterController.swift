@@ -46,7 +46,7 @@ public class TextViewSitterController<Model: TextViewSitterTextModel>: NSUIViewC
 		// TODO: Make this nicer
 		self.textStorage = textView.nsuiTextStorage!
 		self.theme = theme
-		self.highlighter = Highlighter(theme: theme)
+		self.highlighter = Highlighter()
 
 		super.init(nibName: nil, bundle: nil)
 		textView.delegate = self
@@ -61,7 +61,7 @@ public class TextViewSitterController<Model: TextViewSitterTextModel>: NSUIViewC
 		load(model: model)
 		load(theme: theme)
 	}
-	
+
 	func load(theme: Theme) {
 		highlighter.highlightTask?.cancel()
 
@@ -80,7 +80,7 @@ public class TextViewSitterController<Model: TextViewSitterTextModel>: NSUIViewC
 
 		textStorage.beginEditing()
 		textStorage.setAttributedString(.init(string: model.text))
-		textStorage.addAttributes(self.theme.typingAttributes, range: NSRange(textStorage: textStorage))
+		textStorage.addAttributes(theme.typingAttributes, range: NSRange(textStorage: textStorage))
 		textStorage.endEditing()
 
 		DispatchQueue.main.async {
@@ -91,9 +91,9 @@ public class TextViewSitterController<Model: TextViewSitterTextModel>: NSUIViewC
 
 	func focus() {
 		#if os(macOS)
-		textView.window?.makeFirstResponder(self)
+			textView.window?.makeFirstResponder(self)
 		#else
-		textView.becomeFirstResponder()
+			textView.becomeFirstResponder()
 		#endif
 	}
 
@@ -156,18 +156,20 @@ public class TextViewSitterController<Model: TextViewSitterTextModel>: NSUIViewC
 		}
 	#endif
 
-	public func textStorage(_: NSTextStorage, willProcessEditing _: NSTextStorage.EditActions, range _: NSRange, changeInLength _: Int) {}
+	public nonisolated func textStorage(_: NSTextStorage, willProcessEditing _: NSTextStorage.EditActions, range _: NSRange, changeInLength _: Int) {}
 
-	public func textStorage(_: NSTextStorage, didProcessEditing actions: NSTextStorage.EditActions, range _: NSRange, changeInLength _: Int) {
+	public nonisolated func textStorage(_: NSTextStorage, didProcessEditing actions: NSTextStorage.EditActions, range _: NSRange, changeInLength _: Int) {
 		guard actions.contains(.editedCharacters) else {
 			return
 		}
 
-		model.didChange(text: textStorage.string)
+		MainActor.assumeIsolated {
+			model.didChange(text: textStorage.string)
 
-		// TODO: this is a bit clumsy
-		highlighter.highlights(for: textStorage) { _ in
-			self.highlighter.applyStyles(in: self.textStorage)
+			// TODO: this is a bit clumsy
+			highlighter.highlights(for: textStorage) { _ in
+				self.highlighter.applyStyles(in: self.textStorage)
+			}
 		}
 	}
 }

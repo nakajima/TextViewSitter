@@ -12,7 +12,7 @@ import TextViewSitter
 
 @Observable
 class TextModel: Equatable, TextViewSitterTextModel {
-	static func ==(lhs: TextModel, rhs: TextModel) -> Bool {
+	static func == (lhs: TextModel, rhs: TextModel) -> Bool {
 		return lhs.id == rhs.id
 	}
 

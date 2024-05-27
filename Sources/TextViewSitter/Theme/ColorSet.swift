@@ -9,7 +9,7 @@ import Foundation
 import NSUI
 import SwiftUI
 
-public struct ColorSet: Equatable {
+public struct ColorSet: Sendable, Equatable {
 	public let textColor: NSUIColor
 	public let linkColor: NSUIColor
 	public let backgroundColor: NSUIColor

@@ -9,7 +9,7 @@ import Foundation
 import NSUI
 import SwiftTreeSitter
 
-public struct Highlight: Hashable, Equatable {
+public struct Highlight: Sendable, Hashable, Equatable {
 	public static func == (lhs: Highlight, rhs: Highlight) -> Bool {
 		lhs.name == rhs.name && lhs.range == rhs.range
 	}
@@ -24,7 +24,7 @@ public struct Highlight: Hashable, Equatable {
 	public let nodeType: String?
 	public let nameComponents: [String]
 	public let range: NSRange
-	public let style: [NSAttributedString.Key: Any]
+	public let style: [NSAttributedString.Key: any Sendable]
 
 	func updating(to theme: Theme, in storage: NSTextStorage) -> Highlight {
 		if let style = theme.styles[name] {

@@ -18,7 +18,6 @@ let package = Package(
 	],
 	dependencies: [
 		.package(url: "https://github.com/mattmassicotte/NSUI", branch: "main"),
-		.package(url: "https://github.com/ChimeHQ/Glyph", branch: "main"),
 		.package(url: "https://github.com/ChimeHQ/Rearrange", branch: "main"),
 		.package(url: "https://github.com/ChimeHQ/SwiftTreeSitter", branch: "main"),
 
@@ -60,3 +59,14 @@ let package = Package(
 		),
 	]
 )
+
+let swiftSettings: [SwiftSetting] = [
+	.enableExperimentalFeature("StrictConcurrency"),
+	.enableUpcomingFeature("DisableOutwardActorInference"),
+]
+
+for target in package.targets {
+	var settings = target.swiftSettings ?? []
+	settings.append(contentsOf: swiftSettings)
+	target.swiftSettings = settings
+}

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import os
 import Rearrange
 import SwiftTreeSitter
 
@@ -28,14 +29,25 @@ enum Benchy {
 }
 
 // Keeps a copy of the tree around in case we want to play with it
-class HighlighterParser {
+final class HighlighterParser: Sendable {
 	let name: String
 	let languageProvider: LanguageProvider
-	var text: String = ""
 	let configuration: LanguageConfiguration
 	let maxNestedDepth = 5
 
-	public struct Capture {
+	let _text = OSAllocatedUnfairLock(initialState: "")
+	var text: String {
+		get {
+			_text.withLock { state in state }
+		}
+		set {
+			_text.withLock { state in
+				state = newValue
+			}
+		}
+	}
+
+	public struct Capture: Sendable {
 		public let language: String
 		public let range: NSRange
 		public let nodeType: String?

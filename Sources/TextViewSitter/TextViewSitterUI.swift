@@ -48,7 +48,7 @@ public struct TextViewSitterUI<Model: TextViewSitterTextModel>: NSUIViewControll
 	}
 
 	public func updateNSUIViewController(_ controller: TextViewSitterController<Model>, context _: Context) {
-		if self.theme != controller.theme {
+		if theme != controller.theme {
 			controller.load(theme: theme)
 		}
 

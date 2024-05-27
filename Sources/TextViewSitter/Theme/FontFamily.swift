@@ -8,7 +8,7 @@
 import Foundation
 import NSUI
 
-public protocol FontFamily {
+public protocol FontFamily: Sendable {
 	var name: String { get }
 	func regular(ofSize: CGFloat) -> NSUIFont
 	func bold(ofSize: CGFloat) -> NSUIFont

@@ -8,8 +8,8 @@
 import Foundation
 import NSUI
 
-public struct Theme {
-	public struct Fonts {
+public struct Theme: Sendable {
+	public struct Fonts: Sendable {
 		let theme: Theme
 
 		public func regular() -> NSUIFont {
