@@ -50,7 +50,7 @@ import Foundation
 		# Here's a list
 
 		- What do we think?
-		- What about a long line that probably wraps because it's so long? Does it indent properly. I guess we'll see. We sure will.
+		- What about a **long line** that probably wraps because it's so long? Does it indent properly. I guess we'll see. We sure will.
 		- And one more, rule of threes and whatnot
 
 		## What about an ordered list

@@ -22,25 +22,27 @@ public protocol Style {
 
 extension Style {
 	func attributes(for range: NSRange, theme: Theme, in storage: NSTextStorage) -> [NSAttributedString.Key: Any] {
-		var font = theme.fonts.regular()
+		var attributes: [NSAttributedString.Key: Any] = [:]
+
+		var font: NSUIFont?
 
 		if traits.contains(.bold) {
 			font = theme.fonts.bold()
 		}
 
 		if traits.contains(.italic) {
-			font = font.italics(ofSize: theme.fontSize)
+			font = (font ?? theme.fonts.regular()).italics(ofSize: theme.fontSize)
 		}
 
-		var attributes: [NSAttributedString.Key: Any] = [
-			.font: font,
-		]
+		if let font {
+			attributes[.font] = font
+		}
 
 		if let color {
 			attributes[.foregroundColor] = color
 		}
 
-		return attributes.merging(refinement(for: range, theme: theme, in: storage), uniquingKeysWith: { key, _ in key })
+		return attributes.merging(refinement(for: range, theme: theme, in: storage), uniquingKeysWith: { _, key in key })
 	}
 
 	func refinement(for _: NSRange, theme _: Theme, in _: NSTextStorage) -> [NSAttributedString.Key: Any] {
