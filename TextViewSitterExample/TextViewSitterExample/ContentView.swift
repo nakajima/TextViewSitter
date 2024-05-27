@@ -11,7 +11,11 @@ import SwiftUI
 import TextViewSitter
 
 @Observable
-class TextModel: TextViewSitterTextModel {
+class TextModel: Equatable, TextViewSitterTextModel {
+	static func ==(lhs: TextModel, rhs: TextModel) -> Bool {
+		return lhs.id == rhs.id
+	}
+
 	var id: String
 	var text: String
 

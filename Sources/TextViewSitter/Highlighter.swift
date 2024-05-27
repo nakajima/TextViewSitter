@@ -54,8 +54,6 @@ class Highlighter: NSObject {
 	func highlights(for textStorage: NSTextStorage, result: @MainActor @escaping ([Highlight]) -> Void) {
 		let theme = theme
 		let parser = parser
-		let storage = textStorage
-
 		parser.load(text: textStorage.string)
 
 		highlightTask?.cancel()
@@ -77,7 +75,7 @@ class Highlighter: NSObject {
 						style: style?.attributes(
 							for: capture.range,
 							theme: theme,
-							in: storage
+							in: textStorage
 						) ?? [:]
 					)
 				)

@@ -138,7 +138,9 @@ public class TextViewSitterController<Model: TextViewSitterTextModel>: NSUIViewC
 
 			let highlights = highlighter.highlights(at: selection.rangeValue.location)
 
-			caretChangeCallback?(CaretState(position: selection.rangeValue.location, highlights: highlights))
+			DispatchQueue.main.async {
+				self.caretChangeCallback?(CaretState(position: selection.rangeValue.location, highlights: highlights))
+			}
 		}
 	#else
 		public func textViewDidChangeSelection(_ textView: UITextView) {
@@ -148,7 +150,9 @@ public class TextViewSitterController<Model: TextViewSitterTextModel>: NSUIViewC
 
 			let highlights = highlighter.highlights(at: selection.rangeValue.location)
 
-			caretChangeCallback?(CaretState(position: selection.rangeValue.location, highlights: highlights))
+			DispatchQueue.main.async {
+				self.caretChangeCallback?(CaretState(position: selection.rangeValue.location, highlights: highlights))
+			}
 		}
 	#endif
 
