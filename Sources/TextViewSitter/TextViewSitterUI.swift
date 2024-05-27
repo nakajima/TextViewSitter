@@ -39,7 +39,6 @@ public struct TextViewSitterUI<Model: TextViewSitterTextModel>: NSUIViewControll
 	public func makeNSUIViewController(context _: Context) -> TextViewSitterController<Model> {
 		TextViewSitterController(
 			model: model,
-			styles: StyleBuilder.default, // TODO: Make this configurable
 			theme: theme,
 			textChangeCallback: { text in
 				DispatchQueue.main.async {

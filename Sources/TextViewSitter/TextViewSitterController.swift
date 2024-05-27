@@ -38,7 +38,6 @@ public class TextViewSitterController<Model: TextViewSitterTextModel>: NSUIViewC
 
 	public init(
 		model: Model,
-		styles: [String: any Style],
 		theme: Theme,
 		textChangeCallback: ChangeCallback?,
 		caretChangeCallback: CaretCallback?
@@ -52,7 +51,7 @@ public class TextViewSitterController<Model: TextViewSitterTextModel>: NSUIViewC
 		// TODO: Make this nicer
 		self.textStorage = textView.nsuiTextStorage!
 		self.theme = theme
-		self.highlighter = Highlighter(textStorage: textStorage, theme: theme, styles: styles)
+		self.highlighter = Highlighter(textStorage: textStorage, theme: theme)
 
 		super.init(nibName: nil, bundle: nil)
 		textView.delegate = self
@@ -123,13 +122,25 @@ public class TextViewSitterController<Model: TextViewSitterTextModel>: NSUIViewC
 		fatalError("init(coder:) has not been implemented")
 	}
 
-	public func textViewDidChangeSelection(_: Notification) {
-		guard let selection = textView.selectedRanges.first else {
-			return
+	#if os(macOS)
+		public func textViewDidChangeSelection(_: Notification) {
+			guard let selection = textView.selectedRanges.first else {
+				return
+			}
+
+			let highlights = highlighter.highlights(at: selection.rangeValue.location)
+
+			caretChangeCallback?(CaretState(position: selection.rangeValue.location, highlights: highlights))
 		}
+	#else
+		public func textViewDidChangeSelection(_ textView: UITextView) {
+			guard let selection = textView.selectedRanges.first else {
+				return
+			}
 
-		let highlights = highlighter.highlights(at: selection.rangeValue.location)
+			let highlights = highlighter.highlights(at: selection.rangeValue.location)
 
-		caretChangeCallback?(CaretState(position: selection.rangeValue.location, highlights: highlights))
-	}
+			caretChangeCallback?(CaretState(position: selection.rangeValue.location, highlights: highlights))
+		}
+	#endif
 }

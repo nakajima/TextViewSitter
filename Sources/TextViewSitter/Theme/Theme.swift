@@ -25,7 +25,7 @@ public struct Theme {
 		}
 	}
 
-	public static let `default` = Theme(fontFamily: .default, colors: .default)
+	public static let `default` = Theme(fontFamily: .default, colors: .default, styles: StyleBuilder.default)
 
 	public var fontSize: CGFloat
 	public var lineSpacing: CGFloat
@@ -37,12 +37,14 @@ public struct Theme {
 		fontSize: CGFloat = 16,
 		lineSpacing: CGFloat = 4,
 		fontFamily: any FontFamily,
-		colors: ColorSet
+		colors: ColorSet,
+		styles: [String: any Style]
 	) {
 		self.fontSize = fontSize
 		self.lineSpacing = lineSpacing
 		self.fontFamily = fontFamily
 		self.colors = colors
+		self.styles = styles
 	}
 
 	public var fonts: Fonts {

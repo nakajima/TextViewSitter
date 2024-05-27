@@ -23,8 +23,7 @@ final class TextViewSitterTests: XCTestCase {
 
 		let highlighter = Highlighter(
 			textStorage: storage,
-			theme: .default,
-			styles: StyleBuilder.default
+			theme: .default
 		)
 
 		highlighter.parser.load(text: sample)

@@ -31,16 +31,14 @@ extension Tree {
 class Highlighter: NSObject, NSTextStorageDelegate {
 	let textStorage: NSTextStorage
 	var theme: Theme
-	let styles: [String: any Style]
 	let parser: HighlighterParser
 	let languageProvider = LanguageProvider(primary: "markdown")
 	var knownHighlights: [Highlight] = []
 	var highlightTask: Task<Void, any Error>?
 
-	init(textStorage: NSTextStorage, theme: Theme, styles: [String: any Style]) {
+	init(textStorage: NSTextStorage, theme: Theme) {
 		self.textStorage = textStorage
 		self.theme = theme
-		self.styles = styles
 		self.parser = HighlighterParser(
 			configuration: languageProvider.primaryLanguage,
 			languageProvider: languageProvider
@@ -54,7 +52,6 @@ class Highlighter: NSObject, NSTextStorageDelegate {
 	func highlights(for range: NSRange, result: @MainActor @escaping ([Highlight]) -> Void) {
 		let theme = theme
 		let parser = parser
-		let styles = styles
 		let storage = textStorage
 
 		highlightTask?.cancel()
@@ -65,7 +62,7 @@ class Highlighter: NSObject, NSTextStorageDelegate {
 			let captures = try await parser.captures()
 			for capture in captures {
 				let name = capture.nameComponents.joined(separator: ".")
-				let style = styles[name]
+				let style = theme.styles[name]
 				highlights.append(
 					Highlight(
 						name: name,
