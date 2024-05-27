@@ -19,9 +19,10 @@ public struct Highlight: Hashable, Equatable {
 		hasher.combine(range)
 	}
 
-	public var name: String
-	public var nodeType: String?
-	public var nameComponents: [String]
-	public var range: NSRange
-	public var style: [NSAttributedString.Key: Any]
+	public let name: String
+	public let language: String
+	public let nodeType: String?
+	public let nameComponents: [String]
+	public let range: NSRange
+	public let style: [NSAttributedString.Key: Any]
 }

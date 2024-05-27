@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		A61F12DD2C02559600427ACB /* Samples.swift in Sources */ = {isa = PBXBuildFile; fileRef = A61F12DC2C02559500427ACB /* Samples.swift */; };
+		A67AD4872C04172200CEB87F /* EditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A67AD4862C04172200CEB87F /* EditorView.swift */; };
 		A68DA5AE2C0198F900390C89 /* TextViewSitterExampleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A68DA5AD2C0198F900390C89 /* TextViewSitterExampleApp.swift */; };
 		A68DA5B02C0198F900390C89 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A68DA5AF2C0198F900390C89 /* ContentView.swift */; };
 		A68DA5B22C0198F900390C89 /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = A68DA5B12C0198F900390C89 /* Item.swift */; };
@@ -38,6 +39,7 @@
 
 /* Begin PBXFileReference section */
 		A61F12DC2C02559500427ACB /* Samples.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Samples.swift; sourceTree = "<group>"; };
+		A67AD4862C04172200CEB87F /* EditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorView.swift; sourceTree = "<group>"; };
 		A68DA5AA2C0198F900390C89 /* TextViewSitterExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TextViewSitterExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A68DA5AD2C0198F900390C89 /* TextViewSitterExampleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextViewSitterExampleApp.swift; sourceTree = "<group>"; };
 		A68DA5AF2C0198F900390C89 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -106,6 +108,7 @@
 			children = (
 				A68DA5AD2C0198F900390C89 /* TextViewSitterExampleApp.swift */,
 				A68DA5AF2C0198F900390C89 /* ContentView.swift */,
+				A67AD4862C04172200CEB87F /* EditorView.swift */,
 				A68DA5B12C0198F900390C89 /* Item.swift */,
 				A68DA5B32C0198FA00390C89 /* Assets.xcassets */,
 				A68DA5B52C0198FA00390C89 /* TextViewSitterExample.entitlements */,
@@ -284,6 +287,7 @@
 				A61F12DD2C02559600427ACB /* Samples.swift in Sources */,
 				A68DA5B22C0198F900390C89 /* Item.swift in Sources */,
 				A68DA5AE2C0198F900390C89 /* TextViewSitterExampleApp.swift in Sources */,
+				A67AD4872C04172200CEB87F /* EditorView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -20,53 +20,6 @@ class TextModel: TextViewSitterTextModel {
 	}
 }
 
-struct EditorView: View {
-	@State private var theme = Theme.default
-	@State private var isPreviewing = false
-	@State private var caret: CaretState = CaretState()
-
-	@Bindable var model: TextModel
-
-	var body: some View {
-		TextViewSitterUI(model: model, caretState: $caret, theme: theme)
-			.toolbar {
-				Button("Smaller") {
-					if theme.fontSize > 8 {
-						theme.fontSize -= 8
-					}
-				}
-				Button("Bigger") {
-					theme.fontSize += 8
-				}
-				Button("Preview") {
-					isPreviewing.toggle()
-				}.sheet(isPresented: $isPreviewing) {
-					ScrollView {
-						VStack(alignment: .leading) {
-							Text(try! AttributedString(markdown: model.text))
-							Button("Done") {
-								isPreviewing = false
-							}
-						}
-						.frame(minWidth: 200, minHeight: 200)
-					}
-					.padding()
-					.background(.ultraThinMaterial)
-				}
-			}
-			.safeAreaInset(edge: .bottom) {
-				HStack {
-					Text("Position: \(caret.position)")
-					Text("Nodes: \(caret.highlights.compactMap(\.nodeType))")
-					Text("Highlights: \(caret.highlights.map(\.name))")
-				}
-				.padding(.bottom, 12)
-				.padding(.horizontal)
-				.padding(.top, 2)
-			}
-	}
-}
-
 struct ContentView: View {
 	@Environment(\.modelContext) private var modelContext
 	@State private var sample: Samples = .bigOne
