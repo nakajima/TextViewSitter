@@ -35,6 +35,7 @@ class Highlighter: NSObject, NSTextStorageDelegate {
 	let parser: HighlighterParser
 	let languageProvider = LanguageProvider(primary: "markdown")
 	var knownHighlights: [Highlight] = []
+	var highlightTask: Task<Void, Never>?
 
 	init(textStorage: NSTextStorage, theme: Theme, styles: [String: any Style]) {
 		self.textStorage = textStorage
@@ -47,40 +48,49 @@ class Highlighter: NSObject, NSTextStorageDelegate {
 		textStorage.delegate = self
 	}
 
-	func highlights(for range: NSRange) -> [Highlight] {
-		var result: [Highlight] = []
-		var unknownStyles: Set<String> = []
+	func highlights(for range: NSRange, result: @MainActor @escaping ([Highlight]) -> Void) {
+		let theme = theme
+		let parser = parser
+		let styles = styles
+		let storage = textStorage
 
-		let captures = parser.captures()
-		for capture in captures {
-			let name = capture.nameComponents.joined(separator: ".")
-			let style = styles[name]
-			result.append(
-				Highlight(
-					name: name,
-					language: capture.language,
-					nodeType: capture.nodeType,
-					nameComponents: capture.nameComponents,
-					range: capture.range,
-					style: style?.attributes(
-						for: capture.range,
-						theme: theme,
-						in: textStorage
-					) ?? [:]
+		self.highlightTask?.cancel()
+		self.highlightTask = Task {
+			var highlights: [Highlight] = []
+			var unknownStyles: Set<String> = []
+
+			let captures = parser.captures()
+			for capture in captures {
+				let name = capture.nameComponents.joined(separator: ".")
+				let style = styles[name]
+				highlights.append(
+					Highlight(
+						name: name,
+						language: capture.language,
+						nodeType: capture.nodeType,
+						nameComponents: capture.nameComponents,
+						range: capture.range,
+						style: style?.attributes(
+							for: capture.range,
+							theme: theme,
+							in: storage
+						) ?? [:]
+					)
 				)
-			)
-			if style == nil {
-				unknownStyles.insert(name)
-			}
-		}
 
-		#if DEBUG
+				if style == nil {
+					unknownStyles.insert(name)
+				}
+			}
+
+#if DEBUG
 			if !unknownStyles.isEmpty {
 				print("Unknown types: \(unknownStyles)")
 			}
-		#endif
+#endif
 
-		return result
+			await result(highlights)
+		}
 	}
 
 	func highlights(at position: Int) -> [Highlight] {
@@ -102,14 +112,16 @@ class Highlighter: NSObject, NSTextStorageDelegate {
 
 		// Remove existing highlights
 		let fullRange = NSRange(textStorage: textStorage)
-		textStorage.setAttributes(theme.typingAttributes, range: fullRange)
+		let theme = theme
 
-		let highlights = highlights(for: NSRange(textStorage: textStorage))
+		highlights(for: NSRange(textStorage: textStorage)) { highlights in
+			self.textStorage.setAttributes(theme.typingAttributes, range: fullRange)
 
-		for highlight in highlights {
-			textStorage.addAttributes(highlight.style, range: highlight.range)
+			for highlight in highlights {
+				self.textStorage.addAttributes(highlight.style, range: highlight.range)
+			}
+
+			self.knownHighlights = highlights
 		}
-
-		knownHighlights = highlights
 	}
 }

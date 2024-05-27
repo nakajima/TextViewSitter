@@ -13,6 +13,10 @@ extension NSRange {
 		self.init(location: 0, length: textStorage.length)
 	}
 
+	init(nsAttributedString: NSAttributedString) {
+		self.init(location: 0, length: nsAttributedString.length)
+	}
+
 	func contains(_ range: NSRange) -> Bool {
 		return range.lowerBound >= lowerBound && range.upperBound >= upperBound
 	}

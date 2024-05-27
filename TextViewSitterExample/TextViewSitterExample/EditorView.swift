@@ -75,7 +75,7 @@ struct EditorView: View {
 	}
 
 	func summarize(_ keyPath: PartialKeyPath<Highlight>) -> some View {
-		let items = caret.highlights.compactMap {
+		let items = Set(caret.highlights.compactMap {
 			switch $0[keyPath: keyPath] {
 			case let value as String:
 				return value
@@ -84,7 +84,7 @@ struct EditorView: View {
 			default:
 				return nil
 			}
-		}
+		}).sorted()
 
 		return ForEach(Array(items), id: \.self) { item in
 			Text(item)

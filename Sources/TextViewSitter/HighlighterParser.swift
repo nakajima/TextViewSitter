@@ -9,6 +9,22 @@ import Foundation
 import Rearrange
 import SwiftTreeSitter
 
+func measure<T>(_ label: String, block: @escaping () -> T) -> T? {
+	let clock = ContinuousClock()
+	var value: T?
+	let result = clock.measure { value = block() }
+	print("\(label) took \(result)")
+	return value
+}
+
+func measure<T>(_ label: String, block: @escaping () async throws -> T) async rethrows -> T? {
+	let clock = ContinuousClock()
+	var value: T?
+	let result = try await clock.measure { value = try await block() }
+	print("\(label) took \(result)")
+	return value
+}
+
 // Keeps a copy of the tree around in case we want to play with it
 class HighlighterParser {
 	let name: String
@@ -54,11 +70,22 @@ class HighlighterParser {
 			return []
 		}
 
-		return captures(parser: parser, language: languageProvider.primaryLanguage, in: tree, depth: 0)
+		return measure("finding captures") {
+			self.captures(parser: parser, language: self.languageProvider.primaryLanguage, in: tree, depth: 0)
+		} ?? []
 	}
 
-	func captures(parser: Parser, language config: LanguageConfiguration, in tree: Tree, depth: Int) -> [Capture] {
+	func captures(
+		parser: Parser,
+		language config: LanguageConfiguration,
+		in tree: Tree,
+		depth: Int
+	) -> [Capture] {
 		if depth >= maxNestedDepth {
+			return []
+		}
+
+		if Task.isCancelled {
 			return []
 		}
 

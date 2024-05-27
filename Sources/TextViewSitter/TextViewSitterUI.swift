@@ -56,11 +56,9 @@ public struct TextViewSitterUI<Model: TextViewSitterTextModel>: NSUIViewControll
 
 	public func updateNSUIViewController(_ controller: TextViewSitterController<Model>, context _: Context) {
 		let theme = self.theme != controller.theme ? theme : nil
-		let text = controller.model.id == model.id ? nil : model.text
 
-		if text != nil {
-			print("controller.model.id = \(controller.model.id), model.id = \(model.id)")
-		}
+		// Only update controller text content when we're showing a different model.
+		let text = controller.model.id == model.id ? nil : model.text
 
 		if text != nil || theme != nil {
 			controller.load(model: model, theme: theme)
