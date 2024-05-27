@@ -1,6 +1,6 @@
 # TextViewSitter
 
-The idea is that it highlights a UITextView/NSTextView but it's more just a way for me to learn how all this stuff works. I wouldn't recommend using it yourself. Check out [Neon](https://github.com/chimehq/neon) or [Runestone](https://github.com/simonbs/Runestone) for things that actually work.
+The idea is that it highlights a UITextView/NSTextView with [Tree-sitter](https://tree-sitter.github.io/tree-sitter/) but it's more just a way for me to learn how all this stuff works. I wouldn't recommend using it yourself. Check out [Neon](https://github.com/chimehq/neon) or [Runestone](https://github.com/simonbs/Runestone) for things that actually work.
 
 ## Reasons not to use it:
 
