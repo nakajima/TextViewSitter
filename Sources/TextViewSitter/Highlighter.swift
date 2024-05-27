@@ -99,29 +99,40 @@ class Highlighter: NSObject, NSTextStorageDelegate {
 
 	func textStorage(_: NSTextStorage, willProcessEditing _: NSTextStorage.EditActions, range _: NSRange, changeInLength _: Int) {}
 
-	func textStorage(_: NSTextStorage, didProcessEditing actions: NSTextStorage.EditActions, range _: NSRange, changeInLength _: Int) {
+	func textStorage(_: NSTextStorage, didProcessEditing actions: NSTextStorage.EditActions, range: NSRange, changeInLength delta: Int) {
 		guard actions.contains(.editedCharacters) else {
 			return
 		}
 
+		print("edited characters? \(actions) \(delta) \(range)")
+
+		parser.load(text: textStorage.string)
+
+		highlights(for: NSRange(textStorage: textStorage)) { highlights in
+			self.knownHighlights = highlights
+			self.applyStyles()
+		}
+	}
+
+	func update(theme: Theme) {
+		self.theme = theme
+		updateKnownHighlights()
 		applyStyles()
 	}
 
-	func applyStyles() {
-		parser.load(text: textStorage.string)
+	// Goes through known highlights and updates with new styles
+	private func updateKnownHighlights() {
+		knownHighlights = knownHighlights.map { highlight in
+			highlight.updating(to: theme, in: textStorage)
+		}
+	}
 
-		// Remove existing highlights
+	private func applyStyles() {
 		let fullRange = NSRange(textStorage: textStorage)
-		let theme = theme
+		textStorage.setAttributes(theme.typingAttributes, range: fullRange)
 
-		highlights(for: NSRange(textStorage: textStorage)) { highlights in
-			self.textStorage.setAttributes(theme.typingAttributes, range: fullRange)
-
-			for highlight in highlights {
-				self.textStorage.addAttributes(highlight.style, range: highlight.range)
-			}
-
-			self.knownHighlights = highlights
+		for highlight in knownHighlights.reversed() {
+			textStorage.addAttributes(highlight.style, range: highlight.range)
 		}
 	}
 }

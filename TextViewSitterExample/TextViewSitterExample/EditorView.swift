@@ -18,6 +18,7 @@ struct EditorView: View {
 
 	var body: some View {
 		TextViewSitterUI(model: model, caretState: $caret, theme: theme)
+			.frame(maxHeight: .infinity)
 			.toolbar {
 				Button("Smaller") {
 					if theme.fontSize > 8 {
@@ -43,35 +44,39 @@ struct EditorView: View {
 					.background(.ultraThinMaterial)
 				}
 			}
-			.safeAreaInset(edge: .bottom) {
-				HStack {
-					VStack(alignment: .leading, spacing: 4) {
-						HStack {
-							Text("Position:")
-							Text(caret.position, format: .number)
-								.fontDesign(.monospaced)
-						}
-						HStack {
-							Text("Languages:")
-							summarize(\.language)
-						}
-					}
-					Spacer()
-					VStack(alignment: .trailing, spacing: 4) {
-						HStack {
-							Text("Nodes:")
-							summarize(\.nodeType)
-						}
-						HStack {
-							Text("Highlights:")
-							summarize(\.name)
-						}
-					}
-				}
-				.padding(.bottom, 12)
-				.padding(.horizontal)
-				.padding(.top, 2)
+			.safeAreaInset(edge: .bottom, spacing: 0) {
+				cursorSummary
 			}
+	}
+
+	var cursorSummary: some View {
+		HStack {
+			VStack(alignment: .leading, spacing: 4) {
+				HStack {
+					Text("Position:")
+					Text(caret.position, format: .number)
+						.fontDesign(.monospaced)
+				}
+				HStack {
+					Text("Languages:")
+					summarize(\.language)
+				}
+			}
+			Spacer()
+			VStack(alignment: .trailing, spacing: 4) {
+				HStack {
+					Text("Nodes:")
+					summarize(\.nodeType)
+				}
+				HStack {
+					Text("Highlights:")
+					summarize(\.name)
+				}
+			}
+		}
+		.padding()
+		.background(.ultraThinMaterial)
+		.font(.caption)
 	}
 
 	func summarize(_ keyPath: PartialKeyPath<Highlight>) -> some View {

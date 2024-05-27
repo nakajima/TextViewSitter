@@ -12,37 +12,40 @@ import TextViewSitter
 
 @Observable
 class TextModel: TextViewSitterTextModel {
-	var id = UUID()
+	var id: String
 	var text: String
 
-	init(text: String) {
+	init(id: String, text: String) {
+		self.id = id
 		self.text = text
 	}
 }
 
 struct ContentView: View {
 	@Environment(\.modelContext) private var modelContext
-	@State private var sample: Samples = .bigOne
-	@State private var model = TextModel(text: Samples.bigOne.rawValue)
+	@State private var sample: Samples = .basic
+	@State private var model = TextModel(id: Samples.basic.id, text: Samples.basic.rawValue)
 
 	var body: some View {
-		VStack {
-			HStack {
-				Picker("Sample", selection: $sample) {
-					ForEach(Samples.allCases, id: \.self) { sample in
-						Text(title(for: sample))
-					}
-
-					Text("Persisted").tag("")
-				}
-				.pickerStyle(.segmented)
-			}
-			.padding()
-
+		NavigationStack {
 			EditorView(model: model)
-		}
-		.onChange(of: sample) {
-			self.model = TextModel(text: sample.rawValue)
+				.onChange(of: sample) {
+					self.model = TextModel(id: sample.id, text: sample.rawValue)
+				}
+				.safeAreaInset(edge: .top, spacing: 0) {
+					HStack {
+						Picker("Sample", selection: $sample) {
+							ForEach(Samples.allCases, id: \.self) { sample in
+								Text(title(for: sample))
+							}
+
+							Text("Persisted").tag("")
+						}
+						.pickerStyle(.segmented)
+					}
+					.padding()
+					.background(.clear)
+				}
 		}
 	}
 

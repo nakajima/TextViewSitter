@@ -20,8 +20,10 @@ extension StyleBuilder {
 			theme["conceal"] = .secondary
 			theme["punctuation.special"] = .secondary
 			theme["punctuation.delimiter"] = .secondary
-			theme["list-item"] = ListItemStyle()
+			theme["markup.list"] = .secondary
 			theme["none"] = .primary
+
+			theme["list-item"] = ListItemStyle()
 
 			// Headers
 			theme["markup.heading.1"] = [.bold]
@@ -31,16 +33,8 @@ extension StyleBuilder {
 			theme["markup.heading.5"] = [.bold]
 			theme["markup.heading.6"] = [.bold]
 
-			// Link styles
-			theme["markup.link"] = .secondary
-			theme["markup.link.label"] = .accentColor
-			theme["markup.link.url"] = .accentColor
-			theme["link_destination"] = .accentColor
-			theme["link_text"] = .accentColor
-
 			// Code
 			theme["nospell"] = .primary
-			theme["markup.raw.block"] = .secondary
 			theme["comment"] = .secondary
 			theme["keyword"] = .pink
 			theme["method"] = Color.cyan
@@ -52,7 +46,14 @@ extension StyleBuilder {
 			theme["keyword.function"] = .pink
 			theme["punctuation.bracket"] = .primary
 
-			theme["property"] = .pink
+			// Link styles
+			theme["markup.link"] = .secondary
+			theme["markup.link.label"] = .accentColor
+			theme["markup.link.url"] = .accentColor
+			theme["link_destination"] = .accentColor
+			theme["link_text"] = .accentColor
+
+			theme["property"] = Color.cyan
 		}.styles
 	}
 }

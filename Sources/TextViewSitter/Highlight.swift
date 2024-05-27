@@ -25,4 +25,21 @@ public struct Highlight: Hashable, Equatable {
 	public let nameComponents: [String]
 	public let range: NSRange
 	public let style: [NSAttributedString.Key: Any]
+
+	func updating(to theme: Theme, in storage: NSTextStorage) -> Highlight {
+		if let style = theme.styles[name] {
+			let updated = Highlight(
+				name: name,
+				language: language,
+				nodeType: nodeType,
+				nameComponents: nameComponents,
+				range: range,
+				style: style.attributes(for: range, theme: theme, in: storage)
+			)
+
+			return updated
+		}
+
+		return self
+	}
 }

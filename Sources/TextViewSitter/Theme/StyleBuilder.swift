@@ -14,7 +14,7 @@ public enum FontTrait {
 }
 
 public protocol Style {
-	var color: NSUIColor { get set }
+	var color: NSUIColor? { get set }
 	var traits: Set<FontTrait> { get set }
 
 	func refinement(for range: NSRange, theme: Theme, in storage: NSTextStorage) -> [NSAttributedString.Key: Any]
@@ -33,9 +33,12 @@ extension Style {
 		}
 
 		var attributes: [NSAttributedString.Key: Any] = [
-			.foregroundColor: color,
 			.font: font,
 		]
+
+		if let color {
+			attributes[.foregroundColor] = color
+		}
 
 		return attributes.merging(refinement(for: range, theme: theme, in: storage), uniquingKeysWith: { key, _ in key })
 	}
@@ -46,7 +49,7 @@ extension Style {
 }
 
 struct GenericStyle: Style {
-	var color = NSUIColor(Color.primary)
+	var color: NSUIColor? = nil
 	var traits: Set<FontTrait> = []
 }
 
@@ -67,7 +70,7 @@ struct StyleBuilder {
 		}
 	}
 
-	subscript(_ name: String) -> NSUIColor {
+	subscript(_ name: String) -> NSUIColor? {
 		get {
 			styles[name, default: GenericStyle()].color
 		}
@@ -77,13 +80,19 @@ struct StyleBuilder {
 		}
 	}
 
-	subscript(_ name: String) -> Color {
+	subscript(_ name: String) -> Color? {
 		get {
-			Color(nsuiColor: styles[name, default: GenericStyle()].color)
+			if let color = styles[name, default: GenericStyle()].color {
+				return Color(nsuiColor: color)
+			} else {
+				return nil
+			}
 		}
 
 		set {
-			styles[name, default: GenericStyle()].color = NSUIColor(newValue)
+			if let newValue {
+				styles[name, default: GenericStyle()].color = NSUIColor(newValue)
+			}
 		}
 	}
 
@@ -99,11 +108,7 @@ struct StyleBuilder {
 }
 
 public struct ListItemStyle: Style {
-	#if os(macOS)
-		public var color: NSUIColor = .textColor
-	#else
-		public var color: NSUIColor = NSUIColor(Color.primary)
-	#endif
+	public var color: NSUIColor? = nil
 	public var traits: Set<FontTrait> = []
 
 	public init() {}

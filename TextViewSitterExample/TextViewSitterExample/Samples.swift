@@ -9,6 +9,21 @@ import Foundation
 
 #if DEBUG
 	enum Samples: String, CaseIterable {
+		var id: String {
+			switch self {
+			case .superBasic:
+				"superBasic"
+			case .basic:
+				"basic"
+			case .list:
+				"list"
+			case .blogPost:
+				"blogPost"
+			case .bigOne:
+				"bigOne"
+			}
+		}
+
 		case superBasic = """
 		a **b** _c_
 
