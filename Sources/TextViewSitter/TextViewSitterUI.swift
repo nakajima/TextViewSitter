@@ -11,9 +11,9 @@ import Observation
 import SwiftUI
 
 public protocol TextViewSitterTextModel: AnyObject, Identifiable {
-	var id: ID { get }
+	var id: String { get }
 	var text: String { get set }
-	func didChange(text: String)
+	@MainActor func didChange(text: String)
 }
 
 public extension TextViewSitterTextModel {
