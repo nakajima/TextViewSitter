@@ -10,8 +10,7 @@ import NSUI
 import Observation
 import SwiftUI
 
-public protocol TextViewSitterTextModel: AnyObject, Identifiable {
-	var id: String { get }
+public protocol TextViewSitterTextModel: AnyObject, Equatable {
 	var text: String { get set }
 	@MainActor func didChange(text: String)
 }
@@ -47,13 +46,13 @@ public struct TextViewSitterUI<Model: TextViewSitterTextModel>: NSUIViewControll
 	}
 
 	public func updateNSUIViewController(_ controller: TextViewSitterController<Model>, context _: Context) {
-		let theme = self.theme != controller.theme ? theme : nil
+		if self.theme != controller.theme {
+			controller.load(theme: theme)
+		}
 
 		// Only update controller text content when we're showing a different model.
-		let model = controller.model.id == model.id ? nil : self.model
-
-		if model != nil || theme != nil {
-			controller.load(model: model, theme: theme)
+		if controller.model != model {
+			controller.load(model: model)
 		}
 	}
 }

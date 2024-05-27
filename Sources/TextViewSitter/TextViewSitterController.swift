@@ -58,32 +58,30 @@ public class TextViewSitterController<Model: TextViewSitterTextModel>: NSUIViewC
 		// Setup initial styles
 		textView.typingAttributes = theme.typingAttributes
 
-		load(model: model, theme: theme)
+		load(model: model)
+		load(theme: theme)
 	}
-
-	func load(model: Model?, theme: Theme?) {
+	
+	func load(theme: Theme) {
 		highlighter.highlightTask?.cancel()
 
-		if let theme, theme != self.theme {
-			self.theme = theme
-			// TODO: This crashes if it happens while the textStorage is laying out. We don't love that.
-			textView.typingAttributes = theme.typingAttributes
+		self.theme = theme
 
-			highlighter.update(theme: theme, for: textStorage)
+		// TODO: This crashes if it happens while the textStorage is laying out. We don't love that.
+		textView.typingAttributes = theme.typingAttributes
 
-			if model == nil {
-				return
-			}
-		}
+		highlighter.update(theme: theme, for: textStorage)
+	}
 
-		if let model {
-			print("MODEL ID CHANGED \(model)")
-			textStorage.beginEditing()
-			textStorage.setAttributedString(.init(string: model.text))
-			textStorage.addAttributes(self.theme.typingAttributes, range: NSRange(textStorage: textStorage))
-			textStorage.endEditing()
-			self.model = model
-		}
+	func load(model: Model) {
+		highlighter.highlightTask?.cancel()
+
+		self.model = model
+
+		textStorage.beginEditing()
+		textStorage.setAttributedString(.init(string: model.text))
+		textStorage.addAttributes(self.theme.typingAttributes, range: NSRange(textStorage: textStorage))
+		textStorage.endEditing()
 	}
 
 	func setupTextView() {
