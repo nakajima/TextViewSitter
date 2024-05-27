@@ -14,7 +14,7 @@ import NSUI
 	typealias NSUITextViewDelegate = UITextViewDelegate
 #endif
 
-public class TextViewSitterController<Model: TextViewSitterTextModel>: NSUIViewController, NSTextViewDelegate {
+public class TextViewSitterController<Model: TextViewSitterTextModel>: NSUIViewController, NSUITextViewDelegate {
 	public typealias ChangeCallback = (String) -> Void
 	public typealias CaretCallback = (CaretState) -> Void
 
