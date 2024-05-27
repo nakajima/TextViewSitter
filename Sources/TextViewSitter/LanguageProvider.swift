@@ -23,18 +23,18 @@ class LanguageProvider {
 	}
 
 	var primaryLanguage: LanguageConfiguration {
-		languagesByName[primary]!
+		Self.languagesByName[primary]!
 	}
 
 	var languages: [LanguageConfiguration] {
-		languagesByName.values.map { $0 }
+		Self.languagesByName.values.map { $0 }
 	}
 
 	func find(name: String) -> LanguageConfiguration? {
-		return languagesByName[name]
+		return Self.languagesByName[name]
 	}
 
-	let languagesByName: [String: LanguageConfiguration] = [
+	static let languagesByName: [String: LanguageConfiguration] = [
 		// TODO: Make this configurable
 		"markdown": try! LanguageConfiguration(
 			.init(tree_sitter_markdown()), name: "markdown", queriesURL: LanguageProvider.queriesURL.appending(path: "Markdown")

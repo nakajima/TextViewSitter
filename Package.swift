@@ -53,7 +53,10 @@ let package = Package(
 		),
 		.testTarget(
 			name: "TextViewSitterTests",
-			dependencies: ["TextViewSitter"]
+			dependencies: ["TextViewSitter"],
+			resources: [
+				.process("Resources/Big.md"),
+			]
 		),
 	]
 )

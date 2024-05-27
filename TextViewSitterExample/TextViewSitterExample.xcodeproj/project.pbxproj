@@ -40,6 +40,7 @@
 /* Begin PBXFileReference section */
 		A61F12DC2C02559500427ACB /* Samples.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Samples.swift; sourceTree = "<group>"; };
 		A67AD4862C04172200CEB87F /* EditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorView.swift; sourceTree = "<group>"; };
+		A67AD4892C042A3C00CEB87F /* TextViewSitterExample.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = TextViewSitterExample.xctestplan; sourceTree = "<group>"; };
 		A68DA5AA2C0198F900390C89 /* TextViewSitterExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TextViewSitterExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A68DA5AD2C0198F900390C89 /* TextViewSitterExampleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextViewSitterExampleApp.swift; sourceTree = "<group>"; };
 		A68DA5AF2C0198F900390C89 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -84,6 +85,7 @@
 		A68DA5A12C0198F900390C89 = {
 			isa = PBXGroup;
 			children = (
+				A67AD4892C042A3C00CEB87F /* TextViewSitterExample.xctestplan */,
 				A68DA5DA2C01990700390C89 /* TextViewSitter */,
 				A68DA5AC2C0198F900390C89 /* TextViewSitterExample */,
 				A68DA5C02C0198FB00390C89 /* TextViewSitterExampleTests */,

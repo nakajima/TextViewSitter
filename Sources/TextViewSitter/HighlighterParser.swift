@@ -9,20 +9,22 @@ import Foundation
 import Rearrange
 import SwiftTreeSitter
 
-func measure<T>(_ label: String, block: @escaping () -> T) -> T? {
-	let clock = ContinuousClock()
-	var value: T?
-	let result = clock.measure { value = block() }
-	print("\(label) took \(result)")
-	return value
-}
+enum Benchy {
+	static func measure<T>(_ label: String, block: @escaping () throws -> T) rethrows -> T? {
+		let clock = ContinuousClock()
+		var value: T?
+		let result = try clock.measure { value = try block() }
+		print("\(label) took \(result)")
+		return value
+	}
 
-func measure<T>(_ label: String, block: @escaping () async throws -> T) async rethrows -> T? {
-	let clock = ContinuousClock()
-	var value: T?
-	let result = try await clock.measure { value = try await block() }
-	print("\(label) took \(result)")
-	return value
+	static func measure<T>(_ label: String, block: @escaping () async throws -> T) async rethrows -> T? {
+		let clock = ContinuousClock()
+		var value: T?
+		let result = try await clock.measure { value = try await block() }
+		print("\(label) took \(result)")
+		return value
+	}
 }
 
 // Keeps a copy of the tree around in case we want to play with it
@@ -57,10 +59,12 @@ class HighlighterParser {
 		self.text = text
 	}
 
-	func captures() -> [Capture] {
+	func captures() async throws -> [Capture] {
 		if text.isEmpty {
 			return []
 		}
+
+		try Task.checkCancellation()
 
 		let parser = Parser()
 		try! parser.setLanguage(languageProvider.primaryLanguage.language)
@@ -70,24 +74,23 @@ class HighlighterParser {
 			return []
 		}
 
-		return measure("finding captures") {
-			self.captures(parser: parser, language: self.languageProvider.primaryLanguage, in: tree, depth: 0)
-		} ?? []
+		return try await Benchy.measure("finding captures") {
+			try await self.captures(
+				parser: parser,
+				language: self.languageProvider.primaryLanguage,
+				in: tree,
+				depth: 0
+			)
+		}!
 	}
 
 	func captures(
-		parser: Parser,
+		parser _: Parser,
 		language config: LanguageConfiguration,
 		in tree: Tree,
 		depth: Int
-	) -> [Capture] {
-		if depth >= maxNestedDepth {
-			return []
-		}
-
-		if Task.isCancelled {
-			return []
-		}
+	) async throws -> [Capture] {
+		try Task.checkCancellation()
 
 		var result: [Capture] = []
 
@@ -109,21 +112,37 @@ class HighlighterParser {
 		}
 
 		if let injectionsCursor = config.queries[.injections]?.execute(in: tree, depth: 1) {
-			while let next = injectionsCursor.next() {
-				if let injection = next.injection(with: text.predicateTextProvider),
-				   let config = languageProvider.find(name: injection.name)
-				{
-					try! parser.setLanguage(config.language)
-					parser.includedRanges = [injection.tsRange]
+			let captures = try await withThrowingTaskGroup(of: [Capture].self) { group in
+				while let next = injectionsCursor.next() {
+					if let injection = next.injection(with: self.text.predicateTextProvider),
+					   let config = self.languageProvider.find(name: injection.name)
+					{
+						group.addTask {
+							let parser = Parser()
 
-					// TODO: Trying to pass the existing tree in here causes crashes on larger documents...
-					let injectedTree = parser.parse(text)!.copy()!
+							try! parser.setLanguage(config.language)
+							parser.includedRanges = [injection.tsRange]
 
-					result.append(contentsOf: captures(parser: parser, language: config, in: injectedTree, depth: 4))
-				} else {
-					print("no injection? \(next)")
+							// TODO: Trying to pass the existing tree in here causes crashes on larger documents...
+							let injectedTree = parser.parse(self.text)!.copy()!
+							return try await self.captures(
+								parser: parser,
+								language: config,
+								in: injectedTree,
+								depth: depth + 1
+							)
+						}
+					}
 				}
+
+				var localResults: [Capture] = []
+				for try await result in group {
+					localResults.append(contentsOf: result)
+				}
+				return localResults
 			}
+
+			result.append(contentsOf: captures)
 		}
 
 		return result

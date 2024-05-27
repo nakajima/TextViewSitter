@@ -35,13 +35,16 @@ class Highlighter: NSObject, NSTextStorageDelegate {
 	let parser: HighlighterParser
 	let languageProvider = LanguageProvider(primary: "markdown")
 	var knownHighlights: [Highlight] = []
-	var highlightTask: Task<Void, Never>?
+	var highlightTask: Task<Void, any Error>?
 
 	init(textStorage: NSTextStorage, theme: Theme, styles: [String: any Style]) {
 		self.textStorage = textStorage
 		self.theme = theme
 		self.styles = styles
-		self.parser = HighlighterParser(configuration: languageProvider.primaryLanguage, languageProvider: languageProvider)
+		self.parser = HighlighterParser(
+			configuration: languageProvider.primaryLanguage,
+			languageProvider: languageProvider
+		)
 
 		super.init()
 
@@ -54,12 +57,12 @@ class Highlighter: NSObject, NSTextStorageDelegate {
 		let styles = styles
 		let storage = textStorage
 
-		self.highlightTask?.cancel()
-		self.highlightTask = Task {
+		highlightTask?.cancel()
+		highlightTask = Task {
 			var highlights: [Highlight] = []
 			var unknownStyles: Set<String> = []
 
-			let captures = parser.captures()
+			let captures = try await parser.captures()
 			for capture in captures {
 				let name = capture.nameComponents.joined(separator: ".")
 				let style = styles[name]
@@ -83,11 +86,11 @@ class Highlighter: NSObject, NSTextStorageDelegate {
 				}
 			}
 
-#if DEBUG
-			if !unknownStyles.isEmpty {
-				print("Unknown types: \(unknownStyles)")
-			}
-#endif
+			#if DEBUG
+				if !unknownStyles.isEmpty {
+					print("Unknown types: \(unknownStyles)")
+				}
+			#endif
 
 			await result(highlights)
 		}

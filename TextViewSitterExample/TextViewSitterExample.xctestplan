@@ -1,0 +1,44 @@
+{
+  "configurations" : [
+    {
+      "id" : "3CDF4F09-763E-4DCC-BB6E-3C941843C1E2",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:TextViewSitterExample.xcodeproj",
+      "identifier" : "A68DA5A92C0198F900390C89",
+      "name" : "TextViewSitterExample"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:TextViewSitterExample.xcodeproj",
+        "identifier" : "A68DA5BC2C0198FB00390C89",
+        "name" : "TextViewSitterExampleTests"
+      }
+    },
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:TextViewSitterExample.xcodeproj",
+        "identifier" : "A68DA5C62C0198FB00390C89",
+        "name" : "TextViewSitterExampleUITests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:..",
+        "identifier" : "TextViewSitterTests",
+        "name" : "TextViewSitterTests"
+      }
+    }
+  ],
+  "version" : 1
+}
