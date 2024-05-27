@@ -91,7 +91,7 @@ public class TextViewSitterController<Model: TextViewSitterTextModel>: NSUIViewC
 
 	func focus() {
 		#if os(macOS)
-
+		textView.window?.makeFirstResponder(self)
 		#else
 		textView.becomeFirstResponder()
 		#endif
@@ -119,7 +119,7 @@ public class TextViewSitterController<Model: TextViewSitterTextModel>: NSUIViewC
 			textView.usesFindPanel = true
 			scrollView.documentView = textView
 			view = scrollView
-		#else
+		#elseif !os(tvOS)
 			textView.isFindInteractionEnabled = true
 			view = textView
 		#endif
