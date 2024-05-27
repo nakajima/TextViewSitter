@@ -41,14 +41,10 @@ public struct TextViewSitterUI<Model: TextViewSitterTextModel>: NSUIViewControll
 			model: model,
 			theme: theme,
 			textChangeCallback: { text in
-				DispatchQueue.main.async {
-					model.didChange(text: text)
-				}
+				model.didChange(text: text)
 			},
 			caretChangeCallback: { caret in
-				DispatchQueue.main.async {
-					self.caretState = caret
-				}
+				self.caretState = caret
 			}
 		)
 	}
