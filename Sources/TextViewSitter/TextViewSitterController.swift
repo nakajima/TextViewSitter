@@ -14,7 +14,7 @@ import NSUI
 	typealias NSUITextViewDelegate = UITextViewDelegate
 #endif
 
-public class TextViewSitterController<Model: TextViewSitterTextModel>: NSUIViewController, NSUITextViewDelegate, NSTextStorageDelegate {
+@MainActor public class TextViewSitterController<Model: TextViewSitterTextModel>: NSUIViewController, NSUITextViewDelegate, NSTextStorageDelegate {
 	public typealias ChangeCallback = (String) -> Void
 	public typealias CaretCallback = (CaretState) -> Void
 
@@ -156,9 +156,9 @@ public class TextViewSitterController<Model: TextViewSitterTextModel>: NSUIViewC
 		}
 	#endif
 
-	public nonisolated func textStorage(_: NSTextStorage, willProcessEditing _: NSTextStorage.EditActions, range _: NSRange, changeInLength _: Int) {}
+	public nonisolated(unsafe) func textStorage(_: NSTextStorage, willProcessEditing _: NSTextStorage.EditActions, range _: NSRange, changeInLength _: Int) {}
 
-	public nonisolated func textStorage(_: NSTextStorage, didProcessEditing actions: NSTextStorage.EditActions, range _: NSRange, changeInLength _: Int) {
+	public nonisolated(unsafe) func textStorage(_: NSTextStorage, didProcessEditing actions: NSTextStorage.EditActions, range _: NSRange, changeInLength _: Int) {
 		guard actions.contains(.editedCharacters) else {
 			return
 		}

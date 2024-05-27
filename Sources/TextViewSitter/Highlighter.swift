@@ -79,7 +79,7 @@ final class Highlighter: NSObject, Sendable {
 		}
 	}
 
-	func highlights(for textStorage: NSTextStorage, result: @Sendable @MainActor @escaping ([Highlight]) -> Void) {
+	func highlights(for textStorage: NSTextStorage, result: @MainActor @escaping ([Highlight]) -> Void) {
 		let theme = theme
 		let parser = parser
 		parser.load(text: textStorage.string)
