@@ -28,16 +28,14 @@ extension Tree {
 	}
 }
 
-class Highlighter: NSObject, NSTextStorageDelegate {
-	let textStorage: NSTextStorage
+class Highlighter: NSObject {
 	var theme: Theme
 	let parser: HighlighterParser
 	let languageProvider = LanguageProvider(primary: "markdown")
 	var knownHighlights: [Highlight] = []
 	var highlightTask: Task<Void, any Error>?
 
-	init(textStorage: NSTextStorage, theme: Theme) {
-		self.textStorage = textStorage
+	init(theme: Theme) {
 		self.theme = theme
 		self.parser = HighlighterParser(
 			configuration: languageProvider.primaryLanguage,
@@ -45,14 +43,14 @@ class Highlighter: NSObject, NSTextStorageDelegate {
 		)
 
 		super.init()
-
-		textStorage.delegate = self
 	}
 
-	func highlights(for range: NSRange, result: @MainActor @escaping ([Highlight]) -> Void) {
+	func highlights(for textStorage: NSTextStorage, result: @MainActor @escaping ([Highlight]) -> Void) {
 		let theme = theme
 		let parser = parser
 		let storage = textStorage
+
+		parser.load(text: textStorage.string)
 
 		highlightTask?.cancel()
 		highlightTask = Task {
@@ -89,7 +87,9 @@ class Highlighter: NSObject, NSTextStorageDelegate {
 				}
 			#endif
 
-			await result(highlights)
+			let immutableHighlights = highlights
+			await MainActor.run { self.knownHighlights = immutableHighlights }
+			await result(immutableHighlights)
 		}
 	}
 
@@ -97,42 +97,24 @@ class Highlighter: NSObject, NSTextStorageDelegate {
 		knownHighlights.filter { $0.range.contains(position) }
 	}
 
-	func textStorage(_: NSTextStorage, willProcessEditing _: NSTextStorage.EditActions, range _: NSRange, changeInLength _: Int) {}
-
-	func textStorage(_: NSTextStorage, didProcessEditing actions: NSTextStorage.EditActions, range: NSRange, changeInLength delta: Int) {
-		guard actions.contains(.editedCharacters) else {
-			return
-		}
-
-		print("edited characters? \(actions) \(delta) \(range)")
-
-		parser.load(text: textStorage.string)
-
-		highlights(for: NSRange(textStorage: textStorage)) { highlights in
-			self.knownHighlights = highlights
-			self.applyStyles()
-		}
-	}
-
-	func update(theme: Theme) {
+	func update(theme: Theme, for textStorage: NSTextStorage) {
 		self.theme = theme
-		updateKnownHighlights()
-		applyStyles()
+		updateKnownHighlights(for: textStorage)
 	}
 
-	// Goes through known highlights and updates with new styles
-	private func updateKnownHighlights() {
-		knownHighlights = knownHighlights.map { highlight in
-			highlight.updating(to: theme, in: textStorage)
-		}
-	}
-
-	private func applyStyles() {
+	func applyStyles(in textStorage: NSTextStorage) {
 		let fullRange = NSRange(textStorage: textStorage)
 		textStorage.setAttributes(theme.typingAttributes, range: fullRange)
 
 		for highlight in knownHighlights.reversed() {
 			textStorage.addAttributes(highlight.style, range: highlight.range)
+		}
+	}
+
+	// Goes through known highlights and updates with new styles
+	private func updateKnownHighlights(for textStorage: NSTextStorage) {
+		knownHighlights = knownHighlights.map { highlight in
+			highlight.updating(to: theme, in: textStorage)
 		}
 	}
 }

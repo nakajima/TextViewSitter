@@ -14,7 +14,7 @@ import NSUI
 	typealias NSUITextViewDelegate = UITextViewDelegate
 #endif
 
-public class TextViewSitterController<Model: TextViewSitterTextModel>: NSUIViewController, NSUITextViewDelegate {
+public class TextViewSitterController<Model: TextViewSitterTextModel>: NSUIViewController, NSUITextViewDelegate, NSTextStorageDelegate {
 	public typealias ChangeCallback = (String) -> Void
 	public typealias CaretCallback = (CaretState) -> Void
 
@@ -30,31 +30,27 @@ public class TextViewSitterController<Model: TextViewSitterTextModel>: NSUIViewC
 	// What's it look like tho
 	var theme: Theme
 
-	/// Called when the text changes
-	public var textChangeCallback: ChangeCallback?
-
 	/// Called when the highlights under the cursor changes
 	public var caretChangeCallback: CaretCallback?
 
 	public init(
 		model: Model,
 		theme: Theme,
-		textChangeCallback: ChangeCallback?,
 		caretChangeCallback: CaretCallback?
 	) {
 		self.model = model
 
 		self.textView = TextView()
-		self.textChangeCallback = textChangeCallback
 		self.caretChangeCallback = caretChangeCallback
 
 		// TODO: Make this nicer
 		self.textStorage = textView.nsuiTextStorage!
 		self.theme = theme
-		self.highlighter = Highlighter(textStorage: textStorage, theme: theme)
+		self.highlighter = Highlighter(theme: theme)
 
 		super.init(nibName: nil, bundle: nil)
 		textView.delegate = self
+		textStorage.delegate = self
 
 		// Do platform specific setup and assign it to our view
 		setupTextView()
@@ -63,10 +59,6 @@ public class TextViewSitterController<Model: TextViewSitterTextModel>: NSUIViewC
 		textView.typingAttributes = theme.typingAttributes
 
 		load(model: model, theme: theme)
-
-		NotificationCenter.default.addObserver(forName: NSTextStorage.didProcessEditingNotification, object: textStorage, queue: .main) { _ in
-			textChangeCallback?(self.textStorage.string)
-		}
 	}
 
 	func load(model: Model?, theme: Theme?) {
@@ -77,7 +69,7 @@ public class TextViewSitterController<Model: TextViewSitterTextModel>: NSUIViewC
 			// TODO: This crashes if it happens while the textStorage is laying out. We don't love that.
 			textView.typingAttributes = theme.typingAttributes
 
-			highlighter.update(theme: theme)
+			highlighter.update(theme: theme, for: textStorage)
 
 			if model == nil {
 				return
@@ -85,7 +77,7 @@ public class TextViewSitterController<Model: TextViewSitterTextModel>: NSUIViewC
 		}
 
 		if let model {
-			print("MODEL ID CHANGED \(model.id)")
+			print("MODEL ID CHANGED \(model)")
 			textStorage.beginEditing()
 			textStorage.setAttributedString(.init(string: model.text))
 			textStorage.addAttributes(self.theme.typingAttributes, range: NSRange(textStorage: textStorage))
@@ -148,4 +140,19 @@ public class TextViewSitterController<Model: TextViewSitterTextModel>: NSUIViewC
 			caretChangeCallback?(CaretState(position: selection.rangeValue.location, highlights: highlights))
 		}
 	#endif
+
+	public func textStorage(_: NSTextStorage, willProcessEditing _: NSTextStorage.EditActions, range _: NSRange, changeInLength _: Int) {}
+
+	public func textStorage(_: NSTextStorage, didProcessEditing actions: NSTextStorage.EditActions, range _: NSRange, changeInLength _: Int) {
+		guard actions.contains(.editedCharacters) else {
+			return
+		}
+
+		model.didChange(text: textStorage.string)
+
+		// TODO: this is a bit clumsy
+		highlighter.highlights(for: textStorage) { _ in
+			self.highlighter.applyStyles(in: self.textStorage)
+		}
+	}
 }

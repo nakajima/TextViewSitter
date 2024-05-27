@@ -40,9 +40,6 @@ public struct TextViewSitterUI<Model: TextViewSitterTextModel>: NSUIViewControll
 		TextViewSitterController(
 			model: model,
 			theme: theme,
-			textChangeCallback: { text in
-				model.didChange(text: text)
-			},
 			caretChangeCallback: { caret in
 				self.caretState = caret
 			}
@@ -53,7 +50,7 @@ public struct TextViewSitterUI<Model: TextViewSitterTextModel>: NSUIViewControll
 		let theme = self.theme != controller.theme ? theme : nil
 
 		// Only update controller text content when we're showing a different model.
-		let model = controller.model.id == model.id ? nil : model
+		let model = controller.model.id == model.id ? nil : self.model
 
 		if model != nil || theme != nil {
 			controller.load(model: model, theme: theme)
