@@ -45,6 +45,12 @@ class Highlighter: NSObject {
 		super.init()
 	}
 
+	func highlight(_ textStorage: NSTextStorage) {
+		highlights(for: textStorage) { highlights in
+			self.applyStyles(in: textStorage)
+		}
+	}
+
 	func highlights(for textStorage: NSTextStorage, result: @MainActor @escaping ([Highlight]) -> Void) {
 		let theme = theme
 		let parser = parser

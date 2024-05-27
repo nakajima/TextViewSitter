@@ -24,6 +24,8 @@ public extension TextViewSitterTextModel {
 public struct TextViewSitterUI<Model: TextViewSitterTextModel>: NSUIViewControllerRepresentable {
 	public typealias NSUIViewControllerType = TextViewSitterController<Model>
 
+	@Environment(\.isFocused) var isFocused
+
 	var model: Model
 
 	@Binding var caretState: CaretState
@@ -53,6 +55,10 @@ public struct TextViewSitterUI<Model: TextViewSitterTextModel>: NSUIViewControll
 		// Only update controller text content when we're showing a different model.
 		if controller.model != model {
 			controller.load(model: model)
+		}
+
+		if isFocused {
+			controller.focus()
 		}
 	}
 }

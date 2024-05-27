@@ -82,6 +82,19 @@ public class TextViewSitterController<Model: TextViewSitterTextModel>: NSUIViewC
 		textStorage.setAttributedString(.init(string: model.text))
 		textStorage.addAttributes(self.theme.typingAttributes, range: NSRange(textStorage: textStorage))
 		textStorage.endEditing()
+
+		DispatchQueue.main.async {
+			self.highlighter.highlight(self.textStorage)
+			self.focus()
+		}
+	}
+
+	func focus() {
+		#if os(macOS)
+
+		#else
+		textView.becomeFirstResponder()
+		#endif
 	}
 
 	func setupTextView() {
