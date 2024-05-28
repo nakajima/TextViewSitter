@@ -12,16 +12,12 @@ public struct Theme: Sendable {
 	public struct Fonts: Sendable {
 		let theme: Theme
 
+		public func font(traits: Set<FontTrait>) -> NSUIFont {
+			theme.fontFamily.font(ofSize: theme.fontSize, traits: traits)
+		}
+
 		public func regular() -> NSUIFont {
-			theme.fontFamily.regular(ofSize: theme.fontSize)
-		}
-
-		public func bold() -> NSUIFont {
-			theme.fontFamily.bold(ofSize: theme.fontSize)
-		}
-
-		public func italics() -> NSUIFont {
-			theme.fontFamily.italics(ofSize: theme.fontSize)
+			theme.fontFamily.font(ofSize: theme.fontSize, traits: [])
 		}
 	}
 

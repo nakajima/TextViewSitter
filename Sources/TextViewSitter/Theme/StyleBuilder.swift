@@ -9,7 +9,11 @@ import Foundation
 import NSUI
 import SwiftUI
 
-public enum FontTrait: Sendable {
+public enum FontTrait: String, Comparable, Sendable {
+	public static func < (lhs: FontTrait, rhs: FontTrait) -> Bool {
+		lhs.rawValue < rhs.rawValue
+	}
+
 	case bold, italic
 }
 
@@ -26,8 +30,8 @@ extension Style {
 
 		var font: NSUIFont?
 
-		if traits.contains(.bold) {
-			font = theme.fonts.bold()
+		if !traits.isEmpty {
+			font = theme.fonts.font(traits: traits)
 		}
 
 		if traits.contains(.italic) {

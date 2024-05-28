@@ -10,23 +10,35 @@ import NSUI
 
 public protocol FontFamily: Sendable {
 	var name: String { get }
-	func regular(ofSize: CGFloat) -> NSUIFont
-	func bold(ofSize: CGFloat) -> NSUIFont
-	func italics(ofSize: CGFloat) -> NSUIFont
+
+	func font(ofSize: CGFloat, traits: Set<FontTrait>) -> NSUIFont
 }
 
 public struct FontFamilyDefault: FontFamily {
-	public var name = "Default"
+	public var name = "SF Mono"
 
-	public func regular(ofSize: CGFloat) -> NSUIFont {
+	public func font(ofSize: CGFloat, traits: Set<FontTrait>) -> NSUIFont {
+		switch traits.sorted() {
+		case [.bold]:
+			bold(ofSize: ofSize)
+		case [.italic]:
+			italics(ofSize: ofSize)
+		case [.bold, .italic]:
+			bold(ofSize: ofSize).italics(ofSize: ofSize)
+		default:
+			regular(ofSize: ofSize)
+		}
+	}
+
+	private func regular(ofSize: CGFloat) -> NSUIFont {
 		NSUIFont.monospacedSystemFont(ofSize: ofSize, weight: .regular)
 	}
 
-	public func bold(ofSize: CGFloat) -> NSUIFont {
+	private func bold(ofSize: CGFloat) -> NSUIFont {
 		NSUIFont.monospacedSystemFont(ofSize: ofSize, weight: .bold)
 	}
 
-	public func italics(ofSize: CGFloat) -> NSUIFont {
+	private func italics(ofSize: CGFloat) -> NSUIFont {
 		NSUIFont.monospacedSystemFont(ofSize: ofSize, weight: .regular).italics(ofSize: ofSize)
 	}
 
