@@ -69,9 +69,13 @@ public struct Theme: Sendable {
 	}
 
 	public var editorWidth: CGFloat {
-		let characterSpace = fonts.regular().advancement(forGlyph: .zero).width
-		let space = characterSpace * CGFloat(lineWidth)
-
-		return space
+		#if os(macOS)
+			let characterSpace = fonts.regular().advancement(forGlyph: .zero).width
+			let space = characterSpace * CGFloat(lineWidth)
+			return space
+		#else
+			let characters = Array(repeating: "_", count: Int(lineWidth)).joined(separator: "")
+			return characters.size(withAttributes: [.font: fonts.regular()]).width
+		#endif
 	}
 }

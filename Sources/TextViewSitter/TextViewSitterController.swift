@@ -56,7 +56,6 @@ import NSUI
 		textView.delegate = self
 		textStorage.delegate = self
 
-		// Do platform specific setup and assign it to our view
 		setupTextView()
 
 		// Setup initial styles
@@ -66,12 +65,38 @@ import NSUI
 		load(theme: theme)
 	}
 
+	// Try to size things properly according to character width. This gets called
+	// before anything is laid out so sometimes we need to estimate the container
+	// width by just looking at the window size. None of this feels ideal, there's
+	// probably a better place to hook into tbh.
+	// TODO: maybe move some stuff out of setupTextView into the so we can use layoutSubviews
 	func sizeTextView() {
-		let insetWidth = (scrollView.contentView.frame.width - theme.editorWidth) / 2 - theme.letterWidth * 1.5
-		textView.textContainerInset = .init(
-			width: max(theme.letterWidth, insetWidth),
-			height: theme.letterWidth * 2
-		)
+		#if os(macOS)
+			let scrollViewWidth = scrollView.contentView.frame.width
+			let containerWidth = scrollViewWidth == 0 ? NSApplication.shared.windows.first!.frame.width : scrollViewWidth
+			let insetWidth = (containerWidth - theme.editorWidth) / 2 - theme.letterWidth * 1.5
+
+			textView.textContainerInset = .init(
+				width: max(theme.letterWidth, insetWidth),
+				height: theme.letterWidth * 2
+			)
+		#else
+			let window = UIApplication
+				.shared
+				.connectedScenes
+				.compactMap { ($0 as? UIWindowScene)?.keyWindow }
+				.last
+			let windowWidth = window?.bounds.width ?? 0
+			let containerWidth = view.frame.width == 0 ? windowWidth : view.frame.width
+			let insetWidth = (containerWidth - theme.editorWidth) / 2 - theme.letterWidth
+
+			textView.textContainerInset = .init(
+				top: theme.letterWidth * 2,
+				left: max(theme.letterWidth, insetWidth),
+				bottom: theme.letterWidth * 2,
+				right: max(theme.letterWidth, insetWidth)
+			)
+		#endif
 	}
 
 	func load(theme: Theme) {
@@ -133,16 +158,25 @@ import NSUI
 			textView.isRichText = false
 			textView.usesFindPanel = true
 			scrollView.documentView = textView
-			view = scrollView
 
-			DispatchQueue.main.async {
-				self.sizeTextView()
+			NotificationCenter.default.addObserver(
+				forName: NSWindow.didResizeNotification,
+				object: nil,
+				queue: .main
+			) { _ in
+				MainActor.assumeIsolated {
+					self.sizeTextView()
+				}
 			}
+
+			view = scrollView
 		#elseif !os(tvOS)
 			textView.textContainerInset = .init(top: 16, left: 16, bottom: 16, right: 16)
 			textView.isFindInteractionEnabled = true
 			view = textView
 		#endif
+
+		sizeTextView()
 	}
 
 	@available(*, unavailable)
