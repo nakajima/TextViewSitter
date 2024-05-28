@@ -132,6 +132,7 @@ final class Highlighter: NSObject, Sendable {
 	func update(theme: Theme, for textStorage: NSTextStorage) {
 		self.theme = theme
 		updateKnownHighlights(for: textStorage)
+		applyStyles(in: textStorage)
 	}
 
 	func applyStyles(in textStorage: NSTextStorage) {

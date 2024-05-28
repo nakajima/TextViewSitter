@@ -65,6 +65,10 @@ import NSUI
 	func load(theme: Theme) {
 		highlighter.highlightTask?.cancel()
 
+		if theme.fontFamily.name != self.theme.fontFamily.name {
+			textView.font = theme.fonts.regular()
+		}
+
 		self.theme = theme
 
 		// TODO: This crashes if it happens while the textStorage is laying out. We don't love that.
@@ -110,16 +114,38 @@ import NSUI
 			textView.textContainerInset = .init(width: 16, height: 16)
 			textView.isRichText = false
 			textView.allowsUndo = true
+			textView.autoresizingMask = .width
 
 			textView.minSize = NSSize.zero
 			textView.maxSize = NSSize(width: max, height: max)
+
 			textView.isVerticallyResizable = true
-			textView.isHorizontallyResizable = true
+			textView.isHorizontallyResizable = false
 			textView.isRichText = false
 			textView.usesFindPanel = true
+
+			scrollView.translatesAutoresizingMaskIntoConstraints = false
+			textView.translatesAutoresizingMaskIntoConstraints = false
+			view.translatesAutoresizingMaskIntoConstraints = false
+
 			scrollView.documentView = textView
-			view = scrollView
+			view.addSubview(scrollView)
+
+			NSLayoutConstraint.activate([
+				scrollView.topAnchor.constraint(equalTo: view.topAnchor),
+				scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+				scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+				scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+			])
+
+			NSLayoutConstraint.activate([
+				//				textView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+				textView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+				textView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+			])
+
 		#elseif !os(tvOS)
+			textView.textContainerInset = .init(top: 16, left: 16, bottom: 16, right: 16)
 			textView.isFindInteractionEnabled = true
 			view = textView
 		#endif

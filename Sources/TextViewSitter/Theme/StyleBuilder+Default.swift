@@ -17,7 +17,7 @@ extension StyleBuilder {
 			theme["markup.strong"] = [.bold]
 			theme["markup.italic"] = [.italic]
 			theme["text.title"] = [.bold]
-			theme["conceal"] = .secondary
+			theme["conceal"] = .secondary.opacity(0.6)
 			theme["punctuation.special"] = .secondary
 			theme["punctuation.delimiter"] = .secondary
 			theme["markup.list"] = .secondary
