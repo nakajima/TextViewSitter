@@ -45,7 +45,17 @@ struct EditorView: View {
 				}
 			}
 			.safeAreaInset(edge: .bottom, spacing: 0) {
-				cursorSummary
+				VStack {
+					cursorSummary
+					Slider(value: $theme.lineWidth, in: 8.0 ... 128.0, step: 8.0) {
+						Text("Line Width: \(theme.lineWidth)")
+					} minimumValueLabel: {
+						Text("8")
+					} maximumValueLabel: {
+						Text("128")
+					}
+					.padding()
+				}
 			}
 	}
 

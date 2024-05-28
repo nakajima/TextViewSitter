@@ -28,6 +28,7 @@ public struct Theme: Sendable {
 	public var fontFamily: any FontFamily
 	public var colors: ColorSet
 	public var styles: [String: any Style] = [:]
+	public var lineWidth = 64.0
 
 	public init(
 		fontSize: CGFloat = 16,
@@ -65,5 +66,12 @@ public struct Theme: Sendable {
 
 	public var letterWidth: CGFloat {
 		"_".size(withAttributes: [.font: fonts.regular()]).width
+	}
+
+	public var editorWidth: CGFloat {
+		let characterSpace = fonts.regular().advancement(forGlyph: .zero).width
+		let space = characterSpace * CGFloat(lineWidth)
+
+		return space
 	}
 }

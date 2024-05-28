@@ -27,6 +27,10 @@ import NSUI
 
 	var textStorage: NSTextStorage
 
+	#if os(macOS)
+		let scrollView = NSScrollView()
+	#endif
+
 	// What's it look like tho
 	var theme: Theme
 
@@ -62,6 +66,14 @@ import NSUI
 		load(theme: theme)
 	}
 
+	func sizeTextView() {
+		let insetWidth = (scrollView.contentView.frame.width - theme.editorWidth) / 2 - theme.letterWidth * 1.5
+		textView.textContainerInset = .init(
+			width: max(theme.letterWidth, insetWidth),
+			height: theme.letterWidth * 2
+		)
+	}
+
 	func load(theme: Theme) {
 		highlighter.highlightTask?.cancel()
 
@@ -75,6 +87,8 @@ import NSUI
 		textView.typingAttributes = theme.typingAttributes
 
 		highlighter.update(theme: theme, for: textStorage)
+
+		sizeTextView()
 	}
 
 	func load(model: Model) {
@@ -106,44 +120,24 @@ import NSUI
 		textView.nsuiLayoutManager?.allowsNonContiguousLayout = false
 
 		#if os(macOS) && !targetEnvironment(macCatalyst)
-			let scrollView = NSScrollView()
 			scrollView.autohidesScrollers = true
 			scrollView.hasVerticalScroller = true
-			let max = CGFloat.greatestFiniteMagnitude
+			scrollView.backgroundColor = .green
+			scrollView.autoresizesSubviews = false
 
-			textView.textContainerInset = .init(width: 16, height: 16)
 			textView.isRichText = false
 			textView.allowsUndo = true
-			textView.autoresizingMask = .width
-
-			textView.minSize = NSSize.zero
-			textView.maxSize = NSSize(width: max, height: max)
-
 			textView.isVerticallyResizable = true
-			textView.isHorizontallyResizable = false
+			textView.isHorizontallyResizable = true
+			textView.autoresizingMask = [.width]
 			textView.isRichText = false
 			textView.usesFindPanel = true
-
-			scrollView.translatesAutoresizingMaskIntoConstraints = false
-			textView.translatesAutoresizingMaskIntoConstraints = false
-			view.translatesAutoresizingMaskIntoConstraints = false
-
 			scrollView.documentView = textView
-			view.addSubview(scrollView)
+			view = scrollView
 
-			NSLayoutConstraint.activate([
-				scrollView.topAnchor.constraint(equalTo: view.topAnchor),
-				scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-				scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-				scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-			])
-
-			NSLayoutConstraint.activate([
-				//				textView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-				textView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-				textView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
-			])
-
+			DispatchQueue.main.async {
+				self.sizeTextView()
+			}
 		#elseif !os(tvOS)
 			textView.textContainerInset = .init(top: 16, left: 16, bottom: 16, right: 16)
 			textView.isFindInteractionEnabled = true
@@ -199,3 +193,42 @@ import NSUI
 		}
 	}
 }
+
+#if DEBUG
+	final class PreviewTextModel: Equatable, TextViewSitterTextModel {
+		static func == (lhs: PreviewTextModel, rhs: PreviewTextModel) -> Bool {
+			lhs.text == rhs.text
+		}
+
+		var text: String = """
+		Previously on patstechweblog: I was flailing my way through Swift macros in order inspect my model's properties. These [macros let me create column definitions](https://github.com/nakajima/ServerData.swift/blob/main/Sources/ServerDataMacros/ModelMacro.swift) that look like this:
+
+		```swift
+		public struct ColumnDefinition: Sendable {
+		public var name: String
+		```
+
+		Previously on patstechweblog: I was flailing my way through Swift macros in order inspect my model's properties. These [macros let me create column definitions](https://github.com/nakajima/ServerData.swift/blob/main/Sources/ServerDataMacros/ModelMacro.swift) that look like this:
+
+		```swift
+		public struct ColumnDefinition: Sendable {
+		public var name: String
+		```
+
+		Previously on patstechweblog: I was flailing my way through Swift macros in order inspect my model's properties. These [macros let me create column definitions](https://github.com/nakajima/ServerData.swift/blob/main/Sources/ServerDataMacros/ModelMacro.swift) that look like this:
+
+		```swift
+		public struct ColumnDefinition: Sendable {
+		public var name: String
+		```
+		"""
+
+		func didChange(text: String) {
+			self.text = text
+		}
+	}
+
+	#Preview {
+		TextViewSitterController(model: PreviewTextModel(), theme: .default, caretChangeCallback: nil)
+	}
+#endif

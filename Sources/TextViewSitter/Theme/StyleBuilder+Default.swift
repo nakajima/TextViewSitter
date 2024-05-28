@@ -9,8 +9,8 @@ import Foundation
 import NSUI
 import SwiftUI
 
-extension StyleBuilder {
-	public static var `default`: [String: any Style] {
+public extension StyleBuilder {
+	static var `default`: [String: any Style] {
 		StyleBuilder { theme in
 			theme["text.reference"] = .accentColor
 			theme["text.code"] = Color.cyan
