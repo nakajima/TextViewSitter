@@ -28,12 +28,12 @@ public struct TextViewSitterUI<Model: TextViewSitterTextModel>: NSUIViewControll
 
 	var model: Model
 
-	@Binding var caretState: CaretState
+	var caretState: Binding<CaretState>?
 	var theme: Theme
 
 	public init(model: Model, caretState: Binding<CaretState>? = nil, theme: Theme) {
 		self.model = model
-		self._caretState = caretState ?? Binding<CaretState>(get: { CaretState() }, set: { _ in })
+		self.caretState = caretState
 		self.theme = theme
 	}
 
@@ -42,7 +42,7 @@ public struct TextViewSitterUI<Model: TextViewSitterTextModel>: NSUIViewControll
 			model: model,
 			theme: theme,
 			caretChangeCallback: { caret in
-				self.caretState = caret
+				self.caretState?.wrappedValue = caret
 			}
 		)
 	}

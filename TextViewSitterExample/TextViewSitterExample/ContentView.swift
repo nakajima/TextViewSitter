@@ -27,8 +27,8 @@ class TextModel: Equatable, TextViewSitterTextModel {
 
 struct ContentView: View {
 	@Environment(\.modelContext) private var modelContext
-	@State private var sample: Samples = .basic
-	@State private var model = TextModel(id: Samples.basic.id, text: Samples.basic.rawValue)
+	@State private var sample: Samples = .superBasic
+	@State private var model = TextModel(id: Samples.superBasic.id, text: Samples.superBasic.rawValue)
 
 	var body: some View {
 		NavigationStack {

@@ -186,44 +186,46 @@ import NSUI
 
 	#if os(macOS)
 		public func textViewDidChangeSelection(_: Notification) {
-			guard let selection = textView.selectedRanges.first else {
+			guard let state = caretState() else {
 				return
 			}
 
-			let highlights = highlighter.highlights(at: selection.rangeValue.location)
-
 			DispatchQueue.main.async {
-				self.caretChangeCallback?(CaretState(position: selection.rangeValue.location, highlights: highlights))
+				self.caretChangeCallback?(state)
 			}
 		}
 	#else
 		public func textViewDidChangeSelection(_ textView: UITextView) {
-			guard let selection = textView.selectedRanges.first else {
+			guard let state = caretState() else {
 				return
 			}
 
-			let highlights = highlighter.highlights(at: selection.rangeValue.location)
-
 			DispatchQueue.main.async {
-				self.caretChangeCallback?(CaretState(position: selection.rangeValue.location, highlights: highlights))
+				self.caretChangeCallback?(state)
 			}
 		}
 	#endif
 
-	public nonisolated(unsafe) func textStorage(_: NSTextStorage, willProcessEditing _: NSTextStorage.EditActions, range _: NSRange, changeInLength _: Int) {}
+	public nonisolated func caretState() -> CaretState? {
+		guard let selection = MainActor.assumeIsolated({ textView.selectedRanges }).first else {
+			return nil
+		}
 
-	public nonisolated(unsafe) func textStorage(_: NSTextStorage, didProcessEditing actions: NSTextStorage.EditActions, range _: NSRange, changeInLength _: Int) {
+		let highlights = highlighter.highlights(at: selection.rangeValue.location)
+
+		return CaretState(selectedRange: selection.rangeValue, highlights: highlights)
+	}
+
+	public nonisolated(unsafe) func textStorage(_ storage: NSTextStorage, willProcessEditing actions: NSTextStorage.EditActions, range: NSRange, changeInLength _: Int) {}
+
+	public nonisolated(unsafe) func textStorage(_ storage: NSTextStorage, didProcessEditing actions: NSTextStorage.EditActions, range: NSRange, changeInLength _: Int) {
 		guard actions.contains(.editedCharacters) else {
 			return
 		}
 
 		MainActor.assumeIsolated {
 			model.didChange(text: textStorage.string)
-
-			// TODO: this is a bit clumsy
-			highlighter.highlights(for: textStorage) { _ in
-				self.highlighter.applyStyles(in: self.textStorage)
-			}
+			highlighter.highlight(storage)
 		}
 	}
 }

@@ -64,7 +64,7 @@ struct EditorView: View {
 			VStack(alignment: .leading, spacing: 4) {
 				HStack {
 					Text("Position:")
-					Text(caret.position, format: .number)
+					Text("\(caret.position)")
 						.fontDesign(.monospaced)
 				}
 				HStack {

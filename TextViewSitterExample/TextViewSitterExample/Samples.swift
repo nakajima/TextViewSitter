@@ -25,9 +25,7 @@ import Foundation
 		}
 
 		case superBasic = """
-		a **b** _c_
-
-		d **e** _f_
+		1. Hello
 		"""
 
 		case basic = """

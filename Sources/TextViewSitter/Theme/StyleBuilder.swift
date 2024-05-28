@@ -122,8 +122,9 @@ public struct ListItemStyle: Style {
 	public func refinement(for range: NSRange, theme: Theme, in storage: NSTextStorage) -> [NSAttributedString.Key: any Sendable] {
 		let paragraphStyle = NSMutableParagraphStyle()
 
+		var indentationLevel: CGFloat = 0
+		var listPrefix = ""
 		if let line = storage.string[range] {
-			var indentationLevel: CGFloat = 0
 			var seenSpace = false
 			for character in line {
 				if seenSpace, !character.isWhitespace {
@@ -131,14 +132,19 @@ public struct ListItemStyle: Style {
 				}
 
 				indentationLevel += 1
+				listPrefix.append(character)
 
 				if character.isWhitespace {
 					seenSpace = true
 				}
 			}
 
-			paragraphStyle.firstLineHeadIndent = 0 // Indent for the first line
-			paragraphStyle.headIndent = theme.letterWidth * indentationLevel // Indent for the wrapped lines
+			// Indent for the first line
+			paragraphStyle.firstLineHeadIndent = 0
+
+			// Indent for the wrapped lines
+			paragraphStyle.headIndent = theme.letterWidth * indentationLevel
+
 			paragraphStyle.lineSpacing = theme.lineSpacing
 		}
 
