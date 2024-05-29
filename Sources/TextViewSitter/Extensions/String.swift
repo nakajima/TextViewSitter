@@ -8,6 +8,10 @@
 import SwiftTreeSitter
 
 public extension String {
+	var trimmed: String {
+		trimmingCharacters(in: .whitespacesAndNewlines)
+	}
+
 	var predicateTextProvider: Predicate.TextProvider {
 		return { nsRange, _ in
 			guard let range = Range<String.Index>(nsRange, in: self) else {

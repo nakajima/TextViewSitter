@@ -195,7 +195,7 @@ import NSUI
 			}
 		}
 	#else
-		public func textViewDidChangeSelection(_ textView: UITextView) {
+		public func textViewDidChangeSelection(_: UITextView) {
 			guard let state = caretState() else {
 				return
 			}
@@ -216,9 +216,9 @@ import NSUI
 		return CaretState(selectedRange: selection.rangeValue, highlights: highlights)
 	}
 
-	public nonisolated(unsafe) func textStorage(_ storage: NSTextStorage, willProcessEditing actions: NSTextStorage.EditActions, range: NSRange, changeInLength _: Int) {}
+	public nonisolated(unsafe) func textStorage(_: NSTextStorage, willProcessEditing _: NSTextStorage.EditActions, range _: NSRange, changeInLength _: Int) {}
 
-	public nonisolated(unsafe) func textStorage(_ storage: NSTextStorage, didProcessEditing actions: NSTextStorage.EditActions, range: NSRange, changeInLength _: Int) {
+	public nonisolated(unsafe) func textStorage(_ storage: NSTextStorage, didProcessEditing actions: NSTextStorage.EditActions, range _: NSRange, changeInLength _: Int) {
 		guard actions.contains(.editedCharacters) else {
 			return
 		}
@@ -228,6 +228,10 @@ import NSUI
 			highlighter.highlight(storage)
 		}
 	}
+
+	#if os(iOS)
+
+	#endif
 }
 
 #if DEBUG

@@ -13,8 +13,8 @@ public struct CaretState {
 	public let highlights: [Highlight]
 
 	public init() {
-		selectedRange = nil
-		highlights = []
+		self.selectedRange = nil
+		self.highlights = []
 	}
 
 	init(selectedRange: NSRange, highlights: [Highlight]) {
@@ -26,28 +26,7 @@ public struct CaretState {
 		selectedRange?.location ?? 0
 	}
 
-	func suggestedIndent(in storage: NSTextStorage) -> IndentHint? {
-		var result: IndentHint? = nil
-
-		for highlight in highlights {
-			if let indentHint = highlight.style[.indentHint] as? IndentHint {
-				print("hint!: \(indentHint)")
-				switch indentHint {
-				case let .add(insertion):
-					// Rewrite insertion if needed (like if we're in an ordered list)
-					result = .add(processIndent(string: insertion, highlight: highlight, in: storage))
-				case .replace(_, _):
-					result = indentHint
-				}
-
-				break
-			}
-		}
-
-		return result
-	}
-
-	private func processIndent(string: String, highlight: Highlight, in storage: NSTextStorage) -> String {
+	private func processIndent(string: String, highlight _: Highlight, in _: NSTextStorage) -> String {
 		return string
 	}
 }
