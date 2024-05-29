@@ -18,7 +18,7 @@ extension TextView {
 
 	func preserveScrollPositionAndSelection(perform: () -> Void) {
 		let currentSelection = selectedRange
-		self.isScrollingDisabled = true
+		isScrollingDisabled = true
 		perform()
 		DispatchQueue.main.async {
 			self.setSelectedRange(currentSelection)

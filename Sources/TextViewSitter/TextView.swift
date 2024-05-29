@@ -9,36 +9,15 @@ import Foundation
 import NSUI
 import Rearrange
 
-class Debouncer {
-	@LockAttribute var task: Task<Void, Never>? = nil
-
-	func perform(action: @MainActor @Sendable @escaping () -> Void) {
-		task?.cancel()
-		task = Task { @MainActor in
-			do {
-				try await Task.sleep(for: .seconds(0.2))
-			} catch {
-				return
-			}
-
-			if Task.isCancelled {
-				return
-			}
-
-			action()
-		}
-	}
-}
-
 public class TextView: NSUITextView {
 	var isScrollingDisabled = false
 	var isSelectionLocked = false
-	let touchDebouncer = Debouncer()
+	let touchThrottler = Throttler()
 
 	public func handleReplacement(
 		for trigger: ReplacerTrigger,
 		selection: NSRange,
-		before: (() -> Void)? = nil,
+		before _: (() -> Void)? = nil,
 		defaultCallback: (() -> Void)? = nil
 	) {
 		if let handler = ReplacerResolver(trigger: trigger, selection: selection, textView: self).result() {
@@ -49,7 +28,7 @@ public class TextView: NSUITextView {
 	}
 
 	func performReplacement(
-		_ action: ReplacerResult, selection: NSRange,
+		_ action: ReplacerResult, selection _: NSRange,
 		before: (() -> Void)? = nil
 	) {
 		before?()
@@ -63,9 +42,9 @@ public class TextView: NSUITextView {
 				return
 			}
 
-			handleReplacement(for: .characters(characters), selection: selectedRange) {
+			handleReplacement(for: .characters(characters), selection: selectedRange, defaultCallback: {
 				super.keyDown(with: event)
-			}
+			})
 		}
 
 		override public func mouseDown(with event: NSEvent) {
@@ -98,7 +77,7 @@ public class TextView: NSUITextView {
 			selectedRange = range
 		}
 
-		override public func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
+		override public func point(inside point: CGPoint, with _: UIEvent?) -> Bool {
 			let location = convert(point, to: coordinateSpace)
 
 			if let textRange = characterRange(at: location),
@@ -106,7 +85,7 @@ public class TextView: NSUITextView {
 			{
 				let position = range.location
 				if let handler = ReplacerResolver(trigger: .tap(position), selection: selectedRange, textView: self).result() {
-					touchDebouncer.perform {
+					touchThrottler.throttle {
 						self.performReplacement(handler, selection: self.selectedRange)
 					}
 					return false

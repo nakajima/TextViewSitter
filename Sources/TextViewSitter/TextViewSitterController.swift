@@ -62,7 +62,6 @@ import NSUI
 		textView.typingAttributes = theme.typingAttributes
 
 		load(model: model)
-		load(theme: theme)
 	}
 
 	// Try to size things properly according to character width. This gets called
@@ -127,14 +126,15 @@ import NSUI
 		highlighter.highlightTask?.cancel()
 
 		self.model = model
-
-		textStorage.beginEditing()
-		textStorage.setAttributedString(.init(string: model.text))
-		textStorage.addAttributes(theme.typingAttributes, range: NSRange(textStorage: textStorage))
-		textStorage.endEditing()
+		print("load model")
+		highlighter.load(text: model.text) { attributeString in
+			print("hi")
+			self.textStorage.beginEditing()
+			self.textStorage.setAttributedString(attributeString)
+			self.textStorage.endEditing()
+		}
 
 		DispatchQueue.main.async {
-			self.highlighter.highlight(self.textStorage)
 			self.focus()
 		}
 	}
@@ -225,7 +225,7 @@ import NSUI
 
 	public nonisolated(unsafe) func textStorage(_: NSTextStorage, willProcessEditing _: NSTextStorage.EditActions, range _: NSRange, changeInLength _: Int) {}
 
-	public nonisolated(unsafe) func textStorage(_ storage: NSTextStorage, didProcessEditing actions: NSTextStorage.EditActions, range: NSRange, changeInLength: Int) {
+	public nonisolated(unsafe) func textStorage(_ storage: NSTextStorage, didProcessEditing actions: NSTextStorage.EditActions, range _: NSRange, changeInLength _: Int) {
 		guard actions.contains(.editedCharacters) else {
 			return
 		}

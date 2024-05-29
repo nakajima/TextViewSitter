@@ -73,6 +73,16 @@ final class Highlighter: NSObject, Sendable {
 		super.init()
 	}
 
+	func load(text: String, onComplete: @escaping (NSAttributedString) -> Void) {
+		let temporaryStorage = NSTextStorage(string: text)
+
+		highlights(for: temporaryStorage) { _ in
+			self.applyStyles(in: temporaryStorage)
+
+			onComplete(temporaryStorage)
+		}
+	}
+
 	func highlight(_ textStorage: NSTextStorage) {
 		highlights(for: textStorage) { _ in
 			self.applyStyles(in: textStorage)
@@ -139,6 +149,7 @@ final class Highlighter: NSObject, Sendable {
 		let fullRange = NSRange(textStorage: textStorage)
 		textStorage.setAttributes(theme.typingAttributes, range: fullRange)
 
+		print("applyStyles \(knownHighlights)")
 		for highlight in knownHighlights.reversed() {
 			textStorage.addAttributes(highlight.style, range: highlight.range)
 		}
