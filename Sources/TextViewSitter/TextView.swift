@@ -7,9 +7,10 @@
 
 import Foundation
 import NSUI
+import Rearrange
 
-enum CompletionType {
-	case newlineWith(String), replaceLineWith(String), unhandled
+public enum ReplacerTrigger {
+	case characters(String), taskList(Bool)
 }
 
 public class TextView: NSUITextView {
@@ -21,12 +22,17 @@ public class TextView: NSUITextView {
 		#endif
 	}
 
-	public func handleReplacement(for characters: String, defaultCallback: () -> Void) {
-		let handler: ReplacerResult? = switch characters {
-		case "\r":
-			NewlineReplacer().handler(for: characters, in: self)
-		default:
-			nil
+	public func handleReplacement(for trigger: ReplacerTrigger, selection: NSRange, defaultCallback: () -> Void) {
+		let handler: ReplacerResult? = switch trigger {
+		case let .characters(characters):
+			switch characters {
+			case "\r":
+				NewlineReplacer().handler(for: trigger, in: self, selection: selection)
+			default:
+				nil
+			}
+		case .taskList:
+			TaskListReplacer().handler(for: trigger, in: self, selection: selection)
 		}
 
 		if let handler {
@@ -43,7 +49,7 @@ public class TextView: NSUITextView {
 				return
 			}
 
-			handleReplacement(for: characters) {
+			handleReplacement(for: .characters(characters), selection: selectedRange) {
 				super.keyDown(with: event)
 			}
 		}
@@ -54,7 +60,7 @@ public class TextView: NSUITextView {
 				return
 			}
 
-			handleReplacement(for: characters) {
+			handleReplacement(for: .characters(characters), selection: selectedRange) {
 				super.pressesBegan(presses, with: event)
 			}
 		}

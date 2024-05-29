@@ -25,6 +25,10 @@ public extension StyleBuilder {
 
 			theme["list-item"] = ListItemStyle()
 
+			// Task list
+			theme["markup.list.checked"] = .secondary
+			theme["markup.list.unchecked"] = .secondary
+
 			// Headers
 			theme["markup.heading.1"] = [.bold]
 			theme["markup.heading.2"] = [.bold]

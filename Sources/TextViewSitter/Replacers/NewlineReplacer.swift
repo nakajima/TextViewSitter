@@ -8,7 +8,7 @@
 import Foundation
 
 enum ListMarker {
-	case unordered(Character), ordered(Int)
+	case unordered(Substring), ordered(Int), taskList
 
 	var original: String {
 		switch self {
@@ -16,6 +16,8 @@ enum ListMarker {
 			"\(character) "
 		case let .ordered(int):
 			"\(int). "
+		case .taskList:
+			"- [ ] "
 		}
 	}
 
@@ -25,12 +27,14 @@ enum ListMarker {
 			"\(character) "
 		case let .ordered(int):
 			"\(int + 1). "
+		case .taskList:
+			"- [ ] "
 		}
 	}
 }
 
 @MainActor struct NewlineReplacer: Replacer {
-	func handler(for _: String, in textView: TextView) -> ReplacerResult? {
+	func handler(for _: ReplacerTrigger, in textView: TextView, selection _: NSRange) -> ReplacerResult? {
 		guard let selectedRange = textView.selectedRanges.first?.rangeValue else {
 			return nil
 		}
@@ -54,12 +58,13 @@ enum ListMarker {
 		line: String,
 		selectedRange: NSRange
 	) -> ReplacerResult? {
-		print("selectedRange: \(selectedRange)")
-
-		let listMarker: ListMarker? = if line.starts(with: "- ") {
-			.unordered("-")
+		// TODO: Handle nested lists
+		let listMarker: ListMarker? = if line.firstMatch(of: #/^-\s\[[\sx]\]\s/#) != nil {
+			.taskList
 		} else if let match = line.firstMatch(of: #/^(\d)\. /#), let int = Int(match.output.1) {
 			.ordered(int)
+		} else if let match = line.firstMatch(of: #/^([\+\-\*]) /#) {
+			.unordered(match.output.1)
 		} else {
 			nil
 		}
