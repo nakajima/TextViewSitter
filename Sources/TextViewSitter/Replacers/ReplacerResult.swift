@@ -48,12 +48,12 @@ enum ReplacerResult {
 
 			#if os(macOS)
 				textView.undoManager!.registerUndo(withTarget: textView) { target in
-					if let replacementRange = range.shifted(endBy: -currentText.count) {
+					if let replacementRange = replacer.range.shifted(endBy: -currentText.count) {
 						target.replaceCharacters(in: replacementRange, with: currentText)
 					}
 				}
 
-				textView.replaceCharacters(in: range, with: content)
+			textView.replaceCharacters(in: replacer.range, with: replacer.content)
 			#else
 				textView.undoManager!.registerUndo(withTarget: textView) { target in
 					let replacementRange = replacer.range.shifted(endBy: -currentText.count)!
