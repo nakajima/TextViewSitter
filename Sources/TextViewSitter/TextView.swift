@@ -9,16 +9,51 @@ import Foundation
 import NSUI
 import Rearrange
 
+class Debouncer {
+	@LockAttribute var task: Task<Void, Never>? = nil
+
+	func perform(action: @MainActor @Sendable @escaping () -> Void) {
+		task?.cancel()
+		task = Task { @MainActor in
+			do {
+				try await Task.sleep(for: .seconds(0.2))
+			} catch {
+				return
+			}
+
+			if Task.isCancelled {
+				return
+			}
+
+			action()
+		}
+	}
+}
+
 public class TextView: NSUITextView {
 	var isScrollingDisabled = false
+	var isSelectionLocked = false
+	let touchDebouncer = Debouncer()
 
-	// TODO: Clean this up
-	public func handleReplacement(for trigger: ReplacerTrigger, selection: NSRange, defaultCallback: () -> Void) {
+	public func handleReplacement(
+		for trigger: ReplacerTrigger,
+		selection: NSRange,
+		before: (() -> Void)? = nil,
+		defaultCallback: (() -> Void)? = nil
+	) {
 		if let handler = ReplacerResolver(trigger: trigger, selection: selection, textView: self).result() {
-			handler.apply(to: self)
+			performReplacement(handler, selection: selection)
 		} else {
-			defaultCallback()
+			defaultCallback?()
 		}
+	}
+
+	func performReplacement(
+		_ action: ReplacerResult, selection: NSRange,
+		before: (() -> Void)? = nil
+	) {
+		before?()
+		action.apply(to: self)
 	}
 
 	#if os(macOS)
@@ -59,19 +94,26 @@ public class TextView: NSUITextView {
 			return characterIndex
 		}
 	#else
-		override public func pressesBegan(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
-			guard let firstPress = presses.first, let characters = firstPress.key?.characters else {
-				super.pressesBegan(presses, with: event)
-				return
-			}
-
-			handleReplacement(for: .characters(characters), selection: selectedRange) {
-				super.pressesBegan(presses, with: event)
-			}
-		}
-
 		func setSelectedRange(_ range: NSRange) {
 			selectedRange = range
+		}
+
+		override public func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
+			let location = convert(point, to: coordinateSpace)
+
+			if let textRange = characterRange(at: location),
+			   let range = NSRange(textRange, textView: self)
+			{
+				let position = range.location
+				if let handler = ReplacerResolver(trigger: .tap(position), selection: selectedRange, textView: self).result() {
+					touchDebouncer.perform {
+						self.performReplacement(handler, selection: self.selectedRange)
+					}
+					return false
+				}
+			}
+
+			return true
 		}
 	#endif
 }

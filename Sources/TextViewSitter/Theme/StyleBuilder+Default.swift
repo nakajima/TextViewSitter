@@ -32,6 +32,9 @@ public extension StyleBuilder {
 			#if os(macOS)
 				theme.add("markup.list.checked", attributes: [.cursor: NSCursor.pointingHand, .isTaskListMarker: true])
 				theme.add("markup.list.unchecked", attributes: [.cursor: NSCursor.pointingHand, .isTaskListMarker: true])
+			#else
+				theme.add("markup.list.checked", attributes: [.isTaskListMarker: true])
+				theme.add("markup.list.unchecked", attributes: [.isTaskListMarker: true])
 			#endif
 
 			// Headers

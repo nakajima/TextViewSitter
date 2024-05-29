@@ -29,7 +29,7 @@ enum ReplacerResult {
 				}
 			}
 
-			textView.insertText(content, replacementRange: range)
+			textView.insertText(content)
 			textView.undoManager!.setActionName(label)
 		case let .replace(range, content, label):
 			let currentText = (textView.value as NSString).substring(with: range)
@@ -38,7 +38,7 @@ enum ReplacerResult {
 				textView.undoManager!.registerUndo(withTarget: textView) { target in
 					if let replacementRange = range.shifted(endBy: -currentText.count) {
 						target.replaceCharacters(in: replacementRange, with: currentText)
-						target.setSelectedRange(NSRange(location: range.upperBound, length: 0))
+//						target.setSelectedRange(NSRange(location: range.upperBound, length: 0))
 					}
 				}
 
@@ -49,11 +49,13 @@ enum ReplacerResult {
 					let replacementTextRange = textView.textRange(with: replacementRange)!
 
 					target.replace(replacementTextRange, withText: "")
-					target.setSelectedRange(NSRange(location: range.upperBound, length: 0))
+//					target.setSelectedRange(NSRange(location: range.upperBound, length: 0))
 				}
 
-				if let textRange = textView.textRange(with: range) {
-					textView.replace(textRange, withText: content)
+				if let textRange = textView.textRange(with: range), let storage = textView.nsuiTextStorage {
+					storage.beginEditing()
+					storage.replaceCharacters(in: range, with: content)
+					storage.endEditing()
 				}
 			#endif
 

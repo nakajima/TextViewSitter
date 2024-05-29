@@ -180,10 +180,6 @@ import NSUI
 		#elseif !os(tvOS)
 			textView.textContainerInset = .init(top: 16, left: 16, bottom: 16, right: 16)
 			textView.isFindInteractionEnabled = true
-
-			let tapRecognizer = TextViewTapRecognizer(controller: self)
-			textView.addGestureRecognizer(tapRecognizer)
-
 			view = textView
 		#endif
 
@@ -215,7 +211,6 @@ import NSUI
 				self.caretChangeCallback?(state)
 			}
 		}
-
 	#endif
 
 	public nonisolated func caretState() -> CaretState? {
@@ -234,8 +229,6 @@ import NSUI
 		guard actions.contains(.editedCharacters) else {
 			return
 		}
-
-		print("didProcessEditing: \(range) \(changeInLength) \(storage.string[range])")
 
 		MainActor.assumeIsolated {
 			model.didChange(text: textStorage.string)
