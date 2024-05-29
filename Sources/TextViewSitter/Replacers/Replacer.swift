@@ -30,7 +30,6 @@ enum ReplacerResult {
 				}
 			}
 
-			print("INSERTING TEXT: \(content.debugDescription)")
 			textView.insertText(content, replacementRange: range)
 			textView.undoManager!.setActionName(label)
 		case let .replace(range, content, label):
