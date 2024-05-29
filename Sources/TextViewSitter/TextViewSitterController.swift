@@ -204,6 +204,8 @@ import TextStory
 
 	#if os(macOS)
 		public func textViewDidChangeSelection(_: Notification) {
+			updateCaretState()
+
 			guard let caretState else {
 				return
 			}
@@ -214,7 +216,9 @@ import TextStory
 		}
 
 		public func textView(_ textView: NSTextView, shouldChangeTextIn affectedCharRange: NSRange, replacementString: String?) -> Bool {
+			print("should change text in")
 			guard let caretState, caretState.allowsAutoIndentation else {
+				print("nope: \(caretState)")
 				return true
 			}
 
