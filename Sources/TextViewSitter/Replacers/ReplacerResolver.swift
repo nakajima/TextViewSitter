@@ -40,6 +40,10 @@ public enum ReplacerTrigger {
 	}
 
 	private func resolveTap(position: Int) -> ReplacerResult? {
+		if textView.string.isEmpty {
+			return nil
+		}
+
 		let attributes: [NSAttributedString.Key: Any] = textView.nsuiTextStorage?.attributes(at: position, effectiveRange: nil) ?? [:]
 
 		if let isTaskListMarker = attributes[.isTaskListMarker] as? Bool, isTaskListMarker {
