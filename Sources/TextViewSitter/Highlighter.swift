@@ -74,6 +74,11 @@ final class Highlighter: NSObject, Sendable {
 	}
 
 	func load(text: String, onComplete: @escaping (NSAttributedString) -> Void) {
+		if text.isEmpty {
+			onComplete(.init(string: text))
+			return
+		}
+
 		let temporaryStorage = NSTextStorage(string: text)
 
 		highlights(for: temporaryStorage) { _ in
