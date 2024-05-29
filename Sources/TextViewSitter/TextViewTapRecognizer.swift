@@ -31,7 +31,7 @@
 				let highlightNames = Set(highlights.map(\.name))
 				if highlightNames.contains("markup.list.unchecked") || highlightNames.contains("markup.list.checked") {
 					let selectionToRestore = controller.textView.selectedRange
-					controller.textView.handleReplacement(for: .taskList(!highlightNames.contains("markup.list.checked")), selection: .init(location: position, length: 0)) {}
+					controller.textView.handleReplacement(for: .tap(!highlightNames.contains("markup.list.checked")), selection: .init(location: position, length: 0)) {}
 					controller.textView.selectedRange = selectionToRestore
 					return true
 				}

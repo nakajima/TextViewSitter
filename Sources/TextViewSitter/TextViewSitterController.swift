@@ -230,10 +230,12 @@ import NSUI
 
 	public nonisolated(unsafe) func textStorage(_: NSTextStorage, willProcessEditing _: NSTextStorage.EditActions, range _: NSRange, changeInLength _: Int) {}
 
-	public nonisolated(unsafe) func textStorage(_ storage: NSTextStorage, didProcessEditing actions: NSTextStorage.EditActions, range _: NSRange, changeInLength _: Int) {
+	public nonisolated(unsafe) func textStorage(_ storage: NSTextStorage, didProcessEditing actions: NSTextStorage.EditActions, range: NSRange, changeInLength: Int) {
 		guard actions.contains(.editedCharacters) else {
 			return
 		}
+
+		print("didProcessEditing: \(range) \(changeInLength) \(storage.string[range])")
 
 		MainActor.assumeIsolated {
 			model.didChange(text: textStorage.string)

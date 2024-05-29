@@ -20,13 +20,16 @@ public enum FontTrait: String, Comparable, Sendable {
 public protocol Style: Sendable {
 	var color: NSUIColor? { get set }
 	var traits: Set<FontTrait> { get set }
+	var attributes: [NSAttributedString.Key: any Sendable] { get set }
 
 	func refinement(for range: NSRange, theme: Theme, in storage: NSTextStorage) -> [NSAttributedString.Key: any Sendable]
 }
 
 public extension Style {
+	var attributes: [NSAttributedString.Key: any Sendable] { [:] }
+
 	func attributes(for range: NSRange, theme: Theme, in storage: NSTextStorage) -> [NSAttributedString.Key: any Sendable] {
-		var attributes: [NSAttributedString.Key: any Sendable] = [:]
+		var attributes = attributes
 
 		var font: NSUIFont?
 
@@ -55,8 +58,10 @@ public extension Style {
 }
 
 public struct GenericStyle: Style {
+	public var name: String
 	public var color: NSUIColor? = nil
 	public var traits: Set<FontTrait> = []
+	public var attributes: [NSAttributedString.Key: any Sendable] = [:]
 }
 
 public struct StyleBuilder {
@@ -78,17 +83,17 @@ public struct StyleBuilder {
 
 	public subscript(_ name: String) -> NSUIColor? {
 		get {
-			styles[name, default: GenericStyle()].color
+			styles[name, default: GenericStyle(name: name)].color
 		}
 
 		set {
-			styles[name, default: GenericStyle()].color = newValue
+			styles[name, default: GenericStyle(name: name)].color = newValue
 		}
 	}
 
 	public subscript(_ name: String) -> Color? {
 		get {
-			if let color = styles[name, default: GenericStyle()].color {
+			if let color = styles[name, default: GenericStyle(name: name)].color {
 				return Color(nsuiColor: color)
 			} else {
 				return nil
@@ -97,53 +102,28 @@ public struct StyleBuilder {
 
 		set {
 			if let newValue {
-				styles[name, default: GenericStyle()].color = NSUIColor(newValue)
+				styles[name, default: GenericStyle(name: name)].color = NSUIColor(newValue)
 			}
 		}
 	}
 
 	public subscript(_ name: String) -> Set<FontTrait> {
 		get {
-			styles[name, default: GenericStyle()].traits
+			styles[name, default: GenericStyle(name: name)].traits
 		}
 
 		set {
-			styles[name, default: GenericStyle()].traits = newValue
+			styles[name, default: GenericStyle(name: name)].traits = newValue
 		}
 	}
-}
 
-public struct ListItemStyle: Style {
-	public var color: NSUIColor? = nil
-	public var traits: Set<FontTrait> = []
+	public mutating func add(_ name: String, attributes: [NSAttributedString.Key: any Sendable]) {
+		var style = styles[name, default: GenericStyle(name: name)]
 
-	public init() {}
-
-	public func refinement(for range: NSRange, theme: Theme, in storage: NSTextStorage) -> [NSAttributedString.Key: any Sendable] {
-		let paragraphStyle = NSMutableParagraphStyle()
-
-		var indentationLevel: CGFloat = 0
-		var listPrefix = ""
-		var inTaskList = false
-
-		if let line = storage.string[range] {
-			let pattern = #/(\- \[[x ]\] |[\-\*\+]\ |\d+\. )/#
-
-			if let match = line.firstMatch(of: pattern) {
-				indentationLevel = CGFloat(match.output.1.count)
-			}
-
-			// Indent for the first line
-			paragraphStyle.firstLineHeadIndent = 0
-
-			// Indent for the wrapped lines
-			paragraphStyle.headIndent = theme.letterWidth * indentationLevel
-
-			paragraphStyle.lineSpacing = theme.lineSpacing
+		for (key, value) in attributes {
+			style.attributes[key] = value
 		}
 
-		return [
-			.paragraphStyle: paragraphStyle as NSParagraphStyle,
-		]
+		styles[name] = style
 	}
 }

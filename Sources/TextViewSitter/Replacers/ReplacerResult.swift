@@ -42,7 +42,7 @@ enum ReplacerResult {
 					}
 				}
 
-				textView.replaceCharacters(in: range, with: currentText)
+				textView.replaceCharacters(in: range, with: content)
 			#else
 				textView.undoManager!.registerUndo(withTarget: textView) { target in
 					let replacementRange = range.shifted(endBy: -currentText.count)!

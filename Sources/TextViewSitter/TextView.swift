@@ -9,33 +9,12 @@ import Foundation
 import NSUI
 import Rearrange
 
-public enum ReplacerTrigger {
-	case characters(String), taskList(Bool)
-}
-
 public class TextView: NSUITextView {
-	var value: String {
-		#if os(macOS)
-			string
-		#else
-			text
-		#endif
-	}
+	var isScrollingDisabled = false
 
+	// TODO: Clean this up
 	public func handleReplacement(for trigger: ReplacerTrigger, selection: NSRange, defaultCallback: () -> Void) {
-		let handler: ReplacerResult? = switch trigger {
-		case let .characters(characters):
-			switch characters {
-			case "\r":
-				NewlineReplacer().handler(for: trigger, in: self, selection: selection)
-			default:
-				nil
-			}
-		case .taskList:
-			TaskListReplacer().handler(for: trigger, in: self, selection: selection)
-		}
-
-		if let handler {
+		if let handler = ReplacerResolver(trigger: trigger, selection: selection, textView: self).result() {
 			handler.apply(to: self)
 		} else {
 			defaultCallback()
@@ -53,6 +32,32 @@ public class TextView: NSUITextView {
 				super.keyDown(with: event)
 			}
 		}
+
+		override public func mouseDown(with event: NSEvent) {
+			// Get the location of the mouse click in the view's coordinate system
+			let location = convert(event.locationInWindow, from: nil)
+
+			// Get the character index for the mouse click location
+			let position = characterIndexForPoint(location: location)
+
+			handleReplacement(for: .tap(position), selection: selectedRange()) { super.mouseDown(with: event) }
+		}
+
+		private func characterIndexForPoint(location: NSPoint) -> Int {
+			guard let layoutManager = layoutManager, let textContainer = textContainer else {
+				return NSNotFound
+			}
+
+			// Adjust the location point to account for the text container's origin
+			let textContainerOffset = NSPoint(x: textContainerInset.width, y: textContainerInset.height)
+			let locationInTextContainer = NSPoint(x: location.x - textContainerOffset.x, y: location.y - textContainerOffset.y)
+
+			// Get the character index at the clicked point
+			let glyphIndex = layoutManager.glyphIndex(for: locationInTextContainer, in: textContainer)
+			let characterIndex = layoutManager.characterIndexForGlyph(at: glyphIndex)
+
+			return characterIndex
+		}
 	#else
 		override public func pressesBegan(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
 			guard let firstPress = presses.first, let characters = firstPress.key?.characters else {
@@ -67,10 +72,6 @@ public class TextView: NSUITextView {
 
 		func setSelectedRange(_ range: NSRange) {
 			selectedRange = range
-		}
-
-		func insertText(_ content: String, replacementRange _: NSRange) {
-			insertText(content)
 		}
 	#endif
 }

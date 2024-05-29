@@ -29,6 +29,11 @@ public extension StyleBuilder {
 			theme["markup.list.checked"] = .secondary
 			theme["markup.list.unchecked"] = .secondary
 
+			#if os(macOS)
+				theme.add("markup.list.checked", attributes: [.cursor: NSCursor.pointingHand, .isTaskListMarker: true])
+				theme.add("markup.list.unchecked", attributes: [.cursor: NSCursor.pointingHand, .isTaskListMarker: true])
+			#endif
+
 			// Headers
 			theme["markup.heading.1"] = [.bold]
 			theme["markup.heading.2"] = [.bold]
@@ -54,8 +59,6 @@ public extension StyleBuilder {
 			theme["markup.link"] = .secondary
 			theme["markup.link.label"] = .accentColor
 			theme["markup.link.url"] = .accentColor
-			theme["link_destination"] = .accentColor
-			theme["link_text"] = .accentColor
 
 			theme["property"] = Color.cyan
 		}.styles

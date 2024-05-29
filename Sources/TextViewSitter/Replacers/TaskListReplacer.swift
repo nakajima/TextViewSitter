@@ -6,10 +6,15 @@
 //
 
 import Foundation
+import NSUI
 
 struct TaskListReplacer: Replacer {
-	func handler(for _: ReplacerTrigger, in textView: TextView, selection: NSRange) -> ReplacerResult? {
-		let currentLineRange = (textView.value as NSString).lineRange(for: selection)
+	func handler(for trigger: ReplacerTrigger, in textView: TextView, selection _: NSRange) -> ReplacerResult? {
+		guard case let .tap(position) = trigger else {
+			return nil
+		}
+
+		let currentLineRange = (textView.value as NSString).lineRange(for: NSRange(location: position, length: 0))
 		let currentLine = (textView.value as NSString).substring(with: currentLineRange)
 
 		let replacementRange = NSRange(location: currentLineRange.location + 3, length: 1)
