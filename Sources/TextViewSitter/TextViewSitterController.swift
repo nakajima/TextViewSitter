@@ -126,9 +126,7 @@ import NSUI
 		highlighter.highlightTask?.cancel()
 
 		self.model = model
-		print("load model")
 		highlighter.load(text: model.text) { attributeString in
-			print("hi")
 			self.textStorage.beginEditing()
 			self.textStorage.setAttributedString(attributeString)
 			self.textStorage.endEditing()
