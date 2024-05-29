@@ -7,16 +7,28 @@
 
 import Foundation
 import NSUI
-
-#if os(macOS)
-	typealias NSUITextViewDelegate = NSTextViewDelegate
-#else
-	typealias NSUITextViewDelegate = UITextViewDelegate
-#endif
+import TextFormation
+import TextStory
 
 @MainActor public class TextViewSitterController<Model: TextViewSitterTextModel>: NSUIViewController, NSUITextViewDelegate, NSTextStorageDelegate {
 	public typealias ChangeCallback = (String) -> Void
 	public typealias CaretCallback = (CaretState) -> Void
+
+	var caretState: CaretState?
+
+	let textMutationApplier = TextViewFilterApplier(
+		filters: [
+			StandardOpenPairFilter(open: "{", close: "}"),
+			NewlineProcessingFilter(),
+		],
+		providers: WhitespaceProviders(
+			leadingWhitespace: TextualIndenter().substitionProvider(
+				indentationUnit: "\t",
+				width: 1
+			),
+			trailingWhitespace: { _, _ in "" }
+		)
+	)
 
 	let highlighter: Highlighter
 
@@ -178,6 +190,7 @@ import NSUI
 		#elseif !os(tvOS)
 			textView.textContainerInset = .init(top: 16, left: 16, bottom: 16, right: 16)
 			textView.isFindInteractionEnabled = true
+			textView.smartDashesType = .no
 			view = textView
 		#endif
 
@@ -199,26 +212,95 @@ import NSUI
 				self.caretChangeCallback?(state)
 			}
 		}
+
+		public func textView(_ textView: NSTextView, shouldChangeTextIn affectedCharRange: NSRange, replacementString: String?) -> Bool {
+			guard let text = replacementString else {
+				return true
+			}
+
+			guard let caretState, caretState.allowsAutoIndentation else {
+				return true
+			}
+
+			return textMutationApplier.textView(
+				textView,
+				shouldChangeTextInRange: affectedCharRange,
+				replacementString: replacementString
+			)
+		}
 	#else
 		public func textViewDidChangeSelection(_: UITextView) {
-			guard let state = caretState() else {
+			updateCaretState()
+
+			guard let caretState else {
 				return
 			}
 
-			DispatchQueue.main.async {
-				self.caretChangeCallback?(state)
+			if caretState.allowsAutoFormatting == true {
+				textView.autocorrectionType = .default
+				textView.autocapitalizationType = .sentences
+				textView.spellCheckingType = .default
+				textView.smartQuotesType = .default
+				textView.smartDashesType = .no
+				textView.smartInsertDeleteType = .default
+			} else {
+				print("disabling auto formatting")
+				textView.autocorrectionType = .no
+				textView.autocapitalizationType = .none
+				textView.spellCheckingType = .no
+				textView.smartQuotesType = .no
+				textView.smartDashesType = .no
+				textView.smartInsertDeleteType = .no
 			}
+
+			DispatchQueue.main.async {
+				self.caretChangeCallback?(caretState)
+			}
+		}
+
+		public func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+			if let action = ReplacerResolver(
+				trigger: .characters(text),
+				selection: range,
+				textView: self.textView
+			).result() {
+				self.textView.performReplacement(action, selection: self.textView.selectedRange)
+				return false
+			}
+
+			return textMutationApplier.textView(
+				textView,
+				shouldChangeTextIn: range,
+				replacementText: text
+			)
 		}
 	#endif
 
-	public nonisolated func caretState() -> CaretState? {
-		guard let selection = MainActor.assumeIsolated({ textView.selectedRanges }).first else {
-			return nil
+	@MainActor public func updateCaretState() {
+		guard let selection = MainActor.assumeIsolated({
+			textView.selectedRanges
+		}).first else {
+			return
 		}
 
 		let highlights = highlighter.highlights(at: selection.rangeValue.location)
 
-		return CaretState(selectedRange: selection.rangeValue, highlights: highlights)
+		var allowsAutoFormatting = true
+		var allowsAutoIndentation = false
+
+		for highlight in highlights {
+			if highlight.nodeType == "fenced_code_block" {
+				allowsAutoFormatting = false
+				allowsAutoIndentation = true
+			}
+		}
+
+		caretState = CaretState(
+			selectedRange: selection.rangeValue,
+			highlights: highlights,
+			allowsAutoIndentation: allowsAutoIndentation,
+			allowsAutoFormatting: allowsAutoFormatting
+		)
 	}
 
 	public nonisolated(unsafe) func textStorage(_: NSTextStorage, willProcessEditing _: NSTextStorage.EditActions, range _: NSRange, changeInLength _: Int) {}

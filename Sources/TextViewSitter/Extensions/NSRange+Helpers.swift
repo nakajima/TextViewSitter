@@ -18,7 +18,7 @@ extension NSRange {
 	}
 
 	func contains(_ range: NSRange) -> Bool {
-		return range.lowerBound >= lowerBound && range.upperBound >= upperBound
+		return range.location >= location && range.upperBound <= upperBound
 	}
 
 	func clamped(to bounds: NSRange) -> NSRange {

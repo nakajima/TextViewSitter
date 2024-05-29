@@ -20,6 +20,7 @@ let package = Package(
 		.package(url: "https://github.com/mattmassicotte/NSUI", branch: "main"),
 		.package(url: "https://github.com/ChimeHQ/Rearrange", branch: "main"),
 		.package(url: "https://github.com/ChimeHQ/SwiftTreeSitter", branch: "main"),
+		.package(url: "https://github.com/ChimeHQ/TextFormation", branch: "main"),
 
 		// Tree sitter gramamrs
 		.package(url: "https://github.com/tree-sitter/tree-sitter-html", branch: "master"),
@@ -35,6 +36,7 @@ let package = Package(
 			dependencies: [
 				"NSUI",
 				"Rearrange",
+				"TextFormation",
 				.product(name: "SwiftTreeSitter", package: "SwiftTreeSitter"),
 				.product(name: "TreeSitterMarkdown", package: "tree-sitter-markdown"),
 				.product(name: "TreeSitterHTML", package: "tree-sitter-html"),

@@ -7,3 +7,9 @@
 
 import Foundation
 import NSUI
+
+#if os(macOS)
+	typealias NSUITextViewDelegate = NSTextViewDelegate
+#else
+	typealias NSUITextViewDelegate = UITextViewDelegate
+#endif

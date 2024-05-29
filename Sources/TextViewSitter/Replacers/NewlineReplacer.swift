@@ -74,17 +74,9 @@ enum ListMarker {
 		}
 
 		if listMarker.original.trimmed == line.trimmed {
-			return .replace(
-				range: lineRange,
-				with: "\n",
-				label: "Leave List"
-			)
+			return .replace(.init(range: lineRange, content: "\n", label: "Leave List", shouldUpdateSelection: true))
 		} else {
-			return .insert(
-				content: "\n\(listMarker.output)",
-				at: selectedRange,
-				label: "Add List Item"
-			)
+			return .insert(.init(range: selectedRange, content: "\n\(listMarker.output)", label: "Add List Item", shouldUpdateSelection: true))
 		}
 	}
 }

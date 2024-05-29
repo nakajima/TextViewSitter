@@ -20,9 +20,9 @@ struct TaskListReplacer: Replacer {
 		let replacementRange = NSRange(location: currentLineRange.location + 3, length: 1)
 
 		if currentLine.starts(with: "- [ ]") {
-			return .replace(range: replacementRange, with: "x", label: "Mark Task Item Complete")
+			return .replace(.init(range: replacementRange, content: "x", label: "Mark Task Item Complete", shouldUpdateSelection: false))
 		} else {
-			return .replace(range: replacementRange, with: " ", label: "Mark Task Item Incomplete")
+			return .replace(.init(range: replacementRange, content: " ", label: "Mark Task Item Incomplete", shouldUpdateSelection: false))
 		}
 	}
 }

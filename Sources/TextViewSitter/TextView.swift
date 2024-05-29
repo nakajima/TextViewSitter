@@ -8,6 +8,7 @@
 import Foundation
 import NSUI
 import Rearrange
+import TextStory
 
 public class TextView: NSUITextView {
 	var isScrollingDisabled = false

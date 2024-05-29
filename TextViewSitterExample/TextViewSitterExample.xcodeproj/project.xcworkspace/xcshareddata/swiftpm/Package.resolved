@@ -1,6 +1,15 @@
 {
-  "originHash" : "718c02e790af42fcf07e75a91d9773659140f7d4526ff06cb9c8cd7c4522f9a4",
+  "originHash" : "3ac7c07ec79dfa3a579af06c2152529ee766750740ef6ab3015b9f12a93a5452",
   "pins" : [
+    {
+      "identity" : "mainoffender",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/mattmassicotte/MainOffender",
+      "state" : {
+        "revision" : "8de872d9256ff7f9913cbc5dd560568ab164be45",
+        "version" : "0.2.1"
+      }
+    },
     {
       "identity" : "nsui",
       "kind" : "remoteSourceControl",
@@ -26,6 +35,24 @@
       "state" : {
         "branch" : "main",
         "revision" : "bf1030d3f6816945f022dbff97bf62747b3bc0d3"
+      }
+    },
+    {
+      "identity" : "textformation",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ChimeHQ/TextFormation",
+      "state" : {
+        "branch" : "main",
+        "revision" : "453bc35ae0eb46031a9be6d975100bfeca8e8cea"
+      }
+    },
+    {
+      "identity" : "textstory",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ChimeHQ/TextStory",
+      "state" : {
+        "revision" : "8883fa739aa213e70e6cb109bfbf0a0b551e4cb5",
+        "version" : "0.8.0"
       }
     },
     {

@@ -32,7 +32,7 @@ public enum ReplacerTrigger {
 
 	private func resolveCharacters(characters: String) -> ReplacerResult? {
 		switch characters {
-		case "\r":
+		case "\r", "\n":
 			NewlineReplacer().handler(for: trigger, in: textView, selection: selection)
 		default:
 			nil

@@ -149,9 +149,10 @@ final class Highlighter: NSObject, Sendable {
 		let fullRange = NSRange(textStorage: textStorage)
 		textStorage.setAttributes(theme.typingAttributes, range: fullRange)
 
-		print("applyStyles \(knownHighlights)")
 		for highlight in knownHighlights.reversed() {
-			textStorage.addAttributes(highlight.style, range: highlight.range)
+			if fullRange.contains(highlight.range) {
+				textStorage.addAttributes(highlight.style, range: highlight.range)
+			}
 		}
 	}
 
