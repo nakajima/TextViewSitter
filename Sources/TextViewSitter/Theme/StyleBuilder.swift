@@ -124,19 +124,13 @@ public struct ListItemStyle: Style {
 
 		var indentationLevel: CGFloat = 0
 		var listPrefix = ""
+		var inTaskList = false
+
 		if let line = storage.string[range] {
-			var seenSpace = false
-			for character in line {
-				if seenSpace, !character.isWhitespace {
-					break
-				}
+			let pattern = #/(\- \[[x ]\] |[\-\*\+]\ |\d+\. )/#
 
-				indentationLevel += 1
-				listPrefix.append(character)
-
-				if character.isWhitespace {
-					seenSpace = true
-				}
+			if let match = line.firstMatch(of: pattern) {
+				indentationLevel = CGFloat(match.output.1.count)
 			}
 
 			// Indent for the first line

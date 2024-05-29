@@ -90,11 +90,18 @@ import NSUI
 			let containerWidth = view.frame.width == 0 ? windowWidth : view.frame.width
 			let insetWidth = (containerWidth - theme.editorWidth) / 2 - theme.letterWidth
 
+			// If we're on a small screen, don't bother with horizontal padding
+			let horizontal: CGFloat = if windowWidth < 500 {
+				0.0
+			} else {
+				max(theme.letterWidth, insetWidth)
+			}
+
 			textView.textContainerInset = .init(
 				top: theme.letterWidth * 2,
-				left: max(theme.letterWidth, insetWidth),
+				left: horizontal,
 				bottom: theme.letterWidth * 2,
-				right: max(theme.letterWidth, insetWidth)
+				right: horizontal
 			)
 		#endif
 	}

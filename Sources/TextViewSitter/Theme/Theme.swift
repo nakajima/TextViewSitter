@@ -32,12 +32,14 @@ public struct Theme: Sendable {
 
 	public init(
 		fontSize: CGFloat = 16,
+		lineWidth: Int = 64,
 		lineSpacing: CGFloat = 4,
 		fontFamily: any FontFamily,
 		colors: ColorSet,
 		styles: [String: any Style]
 	) {
 		self.fontSize = fontSize
+		self.lineWidth = Double(lineWidth)
 		self.lineSpacing = lineSpacing
 		self.fontFamily = fontFamily
 		self.colors = colors
