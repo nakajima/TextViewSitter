@@ -253,7 +253,7 @@ import TextStory
 				return false
 			}
 
-			return TextViewFilters.textMutationApplier.textView(
+			return TextViewFilters.codeMutations.textView(
 				textView,
 				shouldChangeTextIn: range,
 				replacementText: text

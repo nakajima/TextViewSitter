@@ -76,7 +76,11 @@ enum CommandResult {
 			let lastLocation = replacer.range.location + replacer.content.count
 
 			if let postContent = replacer.postContent {
+				#if os(macOS)
 				textView.insertText(postContent, replacementRange: .init(location: lastLocation, length: 0))
+				#else
+				textView.insertString(postContent, at: lastLocation)
+				#endif
 			}
 
 			if replacer.shouldUpdateSelection {
