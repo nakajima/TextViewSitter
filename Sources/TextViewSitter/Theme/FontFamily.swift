@@ -12,6 +12,19 @@ public protocol FontFamily: Sendable {
 	var name: String { get }
 
 	func font(ofSize: CGFloat, traits: Set<FontTrait>) -> NSUIFont
+
+	// Some fonts don't calculate width right
+	func characterWidth(ofSize size: CGFloat) -> CGFloat
+}
+
+public extension FontFamily {
+	func characterWidth(ofSize size: CGFloat) -> CGFloat {
+		#if os(macOS)
+		font(ofSize: size, traits: []).maximumAdvancement.width
+		#else
+		"_".size(withAttributes: [.font: font(ofSize: size, traits: [])]).width
+		#endif
+	}
 }
 
 public struct FontFamilyDefault: FontFamily {

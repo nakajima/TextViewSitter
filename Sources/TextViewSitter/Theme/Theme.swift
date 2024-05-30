@@ -67,17 +67,10 @@ public struct Theme: Sendable {
 	}
 
 	public var letterWidth: CGFloat {
-		"_".size(withAttributes: [.font: fonts.regular()]).width
+		fontFamily.characterWidth(ofSize: fontSize)
 	}
 
 	public var editorWidth: CGFloat {
-		#if os(macOS)
-		let characterSpace = fonts.regular().maximumAdvancement.width
-			let space = characterSpace * CGFloat(lineWidth)
-			return space
-		#else
-			let characters = Array(repeating: "_", count: Int(lineWidth)).joined(separator: "")
-			return characters.size(withAttributes: [.font: fonts.regular()]).width
-		#endif
+		fontFamily.characterWidth(ofSize: fontSize) * lineWidth
 	}
 }
