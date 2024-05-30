@@ -48,6 +48,8 @@ extension NSUIModifierFlags {
 		return switch characters {
 		case "\r", "\n":
 			NewlineCommand().handler(for: trigger, in: textView, selection: selection)
+		case #"""#, "'", "{", "[", "(":
+			SurroundSelectionCommand().handler(for: trigger, in: textView, selection: selection)
 		case "K" where modifiers.contains(.control):
 			DeleteLineCommand().handler(for: trigger, in: textView, selection: selection)
 		case "w" where modifiers.contains(.control):

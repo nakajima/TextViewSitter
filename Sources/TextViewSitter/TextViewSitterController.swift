@@ -16,20 +16,6 @@ import TextStory
 
 	var caretState: CaretState?
 
-	let textMutationApplier = TextViewFilterApplier(
-		filters: [
-			StandardOpenPairFilter(open: "{", close: "}"),
-			NewlineProcessingFilter(),
-		],
-		providers: WhitespaceProviders(
-			leadingWhitespace: TextualIndenter().substitionProvider(
-				indentationUnit: "\t",
-				width: 1
-			),
-			trailingWhitespace: { _, _ in "" }
-		)
-	)
-
 	let highlighter: Highlighter
 
 	var model: Model
@@ -221,7 +207,7 @@ import TextStory
 				return true
 			}
 
-			return textMutationApplier.textView(
+			return TextViewFilters.codeMutations.textView(
 				textView,
 				shouldChangeTextInRange: affectedCharRange,
 				replacementString: replacementString
@@ -267,7 +253,7 @@ import TextStory
 				return false
 			}
 
-			return textMutationApplier.textView(
+			return TextViewFilters.textMutationApplier.textView(
 				textView,
 				shouldChangeTextIn: range,
 				replacementText: text

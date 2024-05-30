@@ -61,7 +61,7 @@ enum ListMarker {
 		// TODO: Handle nested lists
 		let listMarker: ListMarker? = if line.firstMatch(of: #/^-\s\[[\sx]\]\s/#) != nil {
 			.taskList
-		} else if let match = line.firstMatch(of: #/^(\d)\. /#), let int = Int(match.output.1) {
+		} else if let match = line.firstMatch(of: #/^(\d+)\. /#), let int = Int(match.output.1) {
 			.ordered(int)
 		} else if let match = line.firstMatch(of: #/^([\+\-\*]) /#) {
 			.unordered(match.output.1)
@@ -74,7 +74,7 @@ enum ListMarker {
 		}
 
 		if listMarker.original.trimmed == line.trimmed {
-			return .replace(.init(range: lineRange, content: "\n", label: "Leave List", shouldUpdateSelection: true))
+			return .replace(.init(range: lineRange, content: "\n", postContent: "\n", label: "Leave List", shouldUpdateSelection: true, selectionOffset: -1))
 		} else {
 			return .insert(.init(range: selectedRange, content: "\n\(listMarker.output)", label: "Add List Item", shouldUpdateSelection: true))
 		}

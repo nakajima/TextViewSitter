@@ -86,14 +86,12 @@ final class HighlighterParser: Sendable {
 			return []
 		}
 
-		return try await Benchy.measure("finding captures") {
-			try await self.captures(
-				parser: parser,
-				language: self.languageProvider.primaryLanguage,
-				in: tree,
-				depth: 0
-			)
-		}!
+		return try await captures(
+			parser: parser,
+			language: languageProvider.primaryLanguage,
+			in: tree,
+			depth: 0
+		)
 	}
 
 	func captures(

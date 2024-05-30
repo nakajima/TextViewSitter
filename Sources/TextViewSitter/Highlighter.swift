@@ -73,7 +73,10 @@ final class Highlighter: NSObject, Sendable {
 		super.init()
 	}
 
-	func load(text: String, onComplete: @escaping (NSAttributedString) -> Void) {
+	@MainActor func load(
+		text: String,
+		onComplete: @MainActor @escaping (NSAttributedString) -> Void
+	) {
 		if text.isEmpty {
 			onComplete(.init(string: text))
 			return
@@ -88,69 +91,117 @@ final class Highlighter: NSObject, Sendable {
 		}
 	}
 
-	func highlight(_ textStorage: NSTextStorage) {
-		highlights(for: textStorage) { _ in
-			self.applyStyles(in: textStorage)
-		}
-	}
-
-	func highlights(for textStorage: NSTextStorage, result: @MainActor @escaping ([Highlight]) -> Void) {
-		let theme = theme
-		let parser = parser
-		parser.load(text: textStorage.string)
-
-		highlightTask?.cancel()
-		highlightTask = Task {
-			var highlights: [Highlight] = []
-			var unknownStyles: Set<String> = []
-
-			let captures = try await parser.captures()
-			for capture in captures {
-				let name = capture.nameComponents.joined(separator: ".")
-				let style = theme.styles[name]
-				highlights.append(
-					Highlight(
-						name: name,
-						language: capture.language,
-						nodeType: capture.nodeType,
-						nameComponents: capture.nameComponents,
-						range: capture.range,
-						style: style?.attributes(
-							for: capture.range,
-							theme: theme,
-							in: textStorage
-						) ?? [:]
-					)
-				)
-
-				if style == nil {
-					unknownStyles.insert(name)
-				}
-			}
-
-			#if DEBUG
-				if !unknownStyles.isEmpty {
-					print("Unknown types: \(unknownStyles)")
-				}
-			#endif
-
-			let immutableHighlights = highlights
-			await MainActor.run { self.knownHighlights = immutableHighlights }
-			await result(immutableHighlights)
-		}
-	}
-
-	func highlights(at position: Int) -> [Highlight] {
+	public func highlights(at position: Int) -> [Highlight] {
 		knownHighlights.filter { $0.range.contains(position) }
 	}
 
-	func update(theme: Theme, for textStorage: NSTextStorage) {
+	public func update(theme: Theme, for textStorage: NSTextStorage) {
 		self.theme = theme
 		updateKnownHighlights(for: textStorage)
 		applyStyles(in: textStorage)
 	}
 
-	func applyStyles(in textStorage: NSTextStorage) {
+	public func highlight(_ textStorage: NSTextStorage) {
+		highlights(for: textStorage) { _ in
+			self.applyStyles(in: textStorage)
+		}
+	}
+
+	public func highlights(for textStorage: NSTextStorage, result: @Sendable @MainActor @escaping ([Highlight]) -> Void) {
+		highlightTask?.cancel()
+		highlightTask = Task {
+			try await Benchy.measure("Finding highlights") {
+				async let parserHighlights = self.parserHighlights(in: textStorage)
+				async let detectedHighlights = self.dataDetectorHighlights(in: textStorage)
+
+				let immutableHighlights = try await parserHighlights + detectedHighlights
+				await MainActor.run { self.knownHighlights = immutableHighlights }
+				await result(immutableHighlights)
+			}
+		}
+	}
+
+	private func parserHighlights(in textStorage: NSTextStorage) async throws -> [Highlight] {
+		let theme = theme
+		let parser = parser
+		parser.load(text: textStorage.string)
+
+		var highlights: [Highlight] = []
+		var unknownStyles: Set<String> = []
+
+		let captures = try await parser.captures()
+		for capture in captures {
+			let name = capture.nameComponents.joined(separator: ".")
+			let style = theme.styles[name]
+			highlights.append(
+				Highlight(
+					name: name,
+					language: capture.language,
+					nodeType: capture.nodeType,
+					nameComponents: capture.nameComponents,
+					range: capture.range,
+					style: style?.attributes(
+						for: capture.range,
+						theme: theme,
+						in: textStorage
+					) ?? [:]
+				)
+			)
+
+			if style == nil {
+				unknownStyles.insert(name)
+			}
+		}
+
+		#if DEBUG
+			if !unknownStyles.isEmpty {
+				print("Unknown types: \(unknownStyles)")
+			}
+		#endif
+
+		return highlights
+	}
+
+	private func dataDetectorHighlights(in storage: NSTextStorage) async throws -> [Highlight] {
+		let types: NSTextCheckingResult.CheckingType = [
+			.link,
+			.grammar,
+			.date,
+			.allSystemTypes,
+		]
+
+		var highlights: [Highlight] = []
+		let detector = try NSDataDetector(types: types.rawValue)
+		let range = NSRange(textStorage: storage)
+		detector.enumerateMatches(in: storage.string, options: [], range: range) { result, _, _ in
+			guard let result else { return }
+
+			switch result.resultType {
+			case .link:
+				highlights.append(.init(
+					name: "detected.link",
+					language: "markdown",
+					nodeType: nil,
+					nameComponents: ["detected", "link"],
+					range: result.range,
+					style: theme.styles["detected.link"]?.attributes(for: range, theme: theme, in: storage) ?? [:]
+				))
+			default:
+				highlights.append(.init(
+					name: "detected.date",
+					language: "markdown",
+					nodeType: nil,
+					nameComponents: ["detected", "date"],
+					range: result.range,
+					style: theme.styles["detected.date"]?.attributes(for: range, theme: theme, in: storage) ?? [:]
+				))
+			}
+		}
+
+		return highlights
+	}
+
+	private func applyStyles(in textStorage: NSTextStorage) {
 		let fullRange = NSRange(textStorage: textStorage)
 		textStorage.setAttributes(theme.typingAttributes, range: fullRange)
 

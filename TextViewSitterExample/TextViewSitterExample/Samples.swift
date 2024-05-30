@@ -25,14 +25,7 @@ import Foundation
 		}
 
 		case superBasic = """
-		- [ ] A task list example
-		- [ ] Here's another one
-		- [ ] And this is _emphasized_ and this is **bold**. And it's a long line so hopefully it'll wrap. That would be great. Yea it would.
-		- [x] This one is done.
-
-		* What do we think?
-		* What about a **long line** that probably wraps because it's so long? Does it indent properly. I guess we'll see. We sure will.
-		* And one more, rule of threes and whatnot
+		a b c
 		"""
 
 		case basic = """

@@ -63,6 +63,9 @@ public extension StyleBuilder {
 			theme["markup.link.label"] = .accentColor
 			theme["markup.link.url"] = .accentColor
 
+			// Detected
+			theme["detected.link"] = .accentColor
+
 			theme["property"] = Color.cyan
 		}.styles
 	}

@@ -11,8 +11,10 @@ import TextStory
 struct CommandMutation {
 	var range: NSRange
 	var content: String
+	var postContent: String?
 	var label: String
 	var shouldUpdateSelection: Bool
+	var selectionOffset = 0
 }
 
 enum CommandResult {
@@ -45,23 +47,24 @@ enum CommandResult {
 			}
 		case let .replace(replacer):
 			let currentText = (textView.value as NSString).substring(with: replacer.range)
+			let undoRange = NSRange(location: replacer.range.location, length: replacer.content.count)
 
 			#if os(macOS)
 				textView.undoManager!.registerUndo(withTarget: textView) { target in
-					if let replacementRange = replacer.range.shifted(endBy: -currentText.count) {
-						target.replaceCharacters(in: replacementRange, with: currentText)
+					target.replaceCharacters(in: undoRange, with: currentText)
+
+					if replacer.shouldUpdateSelection {
+						textView.setSelectedRange(NSRange(location: replacer.range.location + currentText.count + replacer.selectionOffset, length: 0))
 					}
 				}
 
 				textView.replaceCharacters(in: replacer.range, with: replacer.content)
 			#else
 				textView.undoManager!.registerUndo(withTarget: textView) { target in
-					let replacementRange = replacer.range.shifted(endBy: -currentText.count)!
-
-					target.replaceString(in: replacementRange, with: currentText)
+					target.replaceString(in: undoRange, with: currentText)
 
 					if replacer.shouldUpdateSelection {
-						textView.setSelectedRange(.init(location: replacementRange.location + currentText.count - 1, length: 0))
+						textView.setSelectedRange(.init(location: undoRange.location + currentText.count - 1, length: 0))
 					}
 				}
 
@@ -70,8 +73,14 @@ enum CommandResult {
 
 			textView.undoManager!.setActionName(replacer.label)
 
+			let lastLocation = replacer.range.location + replacer.content.count
+
+			if let postContent = replacer.postContent {
+				textView.insertText(postContent, replacementRange: .init(location: lastLocation, length: 0))
+			}
+
 			if replacer.shouldUpdateSelection {
-				textView.setSelectedRange(.init(location: replacer.range.location + replacer.content.count, length: 0))
+				textView.setSelectedRange(.init(location: lastLocation, length: 0))
 			}
 		}
 	}
