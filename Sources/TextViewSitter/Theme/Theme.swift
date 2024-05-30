@@ -72,7 +72,7 @@ public struct Theme: Sendable {
 
 	public var editorWidth: CGFloat {
 		#if os(macOS)
-			let characterSpace = fonts.regular().advancement(forGlyph: .zero).width
+		let characterSpace = fonts.regular().maximumAdvancement.width
 			let space = characterSpace * CGFloat(lineWidth)
 			return space
 		#else
