@@ -188,6 +188,7 @@ import TextStory
 
 			view = scrollView
 		#elseif !os(tvOS)
+			textView.keyboardDismissMode = .interactive
 			textView.textContainerInset = .init(top: 16, left: 16, bottom: 16, right: 16)
 			textView.isFindInteractionEnabled = true
 			textView.smartDashesType = .no
