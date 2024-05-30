@@ -216,9 +216,7 @@ import TextStory
 		}
 
 		public func textView(_ textView: NSTextView, shouldChangeTextIn affectedCharRange: NSRange, replacementString: String?) -> Bool {
-			print("should change text in")
 			guard let caretState, caretState.allowsAutoIndentation else {
-				print("nope: \(caretState)")
 				return true
 			}
 
@@ -259,8 +257,8 @@ import TextStory
 		}
 
 		public func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
-			if let action = ReplacerResolver(
-				trigger: .characters(text),
+			if let action = CommandResolver(
+				trigger: .characters(text, .init()),
 				selection: range,
 				textView: self.textView
 			).result() {

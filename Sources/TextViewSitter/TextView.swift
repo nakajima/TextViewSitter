@@ -15,13 +15,13 @@ public class TextView: NSUITextView {
 	var isSelectionLocked = false
 	let touchThrottler = Throttler()
 
-	public func handleReplacement(
-		for trigger: ReplacerTrigger,
+	public func handleCommand(
+		for trigger: CommandTrigger,
 		selection: NSRange,
 		before _: (() -> Void)? = nil,
 		defaultCallback: (() -> Void)? = nil
 	) {
-		if let handler = ReplacerResolver(trigger: trigger, selection: selection, textView: self).result() {
+		if let handler = CommandResolver(trigger: trigger, selection: selection, textView: self).result() {
 			performReplacement(handler, selection: selection)
 		} else {
 			defaultCallback?()
@@ -29,7 +29,7 @@ public class TextView: NSUITextView {
 	}
 
 	func performReplacement(
-		_ action: ReplacerResult, selection _: NSRange,
+		_ action: CommandResult, selection _: NSRange,
 		before: (() -> Void)? = nil
 	) {
 		before?()
@@ -38,12 +38,13 @@ public class TextView: NSUITextView {
 
 	#if os(macOS)
 		override public func keyDown(with event: NSEvent) {
-			guard let characters = event.characters else {
+			guard let characters = event.charactersIgnoringModifiers else {
+				print("no characters? \(event)")
 				super.keyDown(with: event)
 				return
 			}
 
-			handleReplacement(for: .characters(characters), selection: selectedRange, defaultCallback: {
+			handleCommand(for: .characters(characters, event.modifierFlags), selection: selectedRange, defaultCallback: {
 				super.keyDown(with: event)
 			})
 		}
@@ -55,7 +56,7 @@ public class TextView: NSUITextView {
 			// Get the character index for the mouse click location
 			let position = characterIndexForPoint(location: location)
 
-			handleReplacement(for: .tap(position), selection: selectedRange()) { super.mouseDown(with: event) }
+			handleCommand(for: .tap(position), selection: selectedRange(), defaultCallback: { super.mouseDown(with: event) })
 		}
 
 		private func characterIndexForPoint(location: NSPoint) -> Int {
@@ -74,6 +75,63 @@ public class TextView: NSUITextView {
 			return characterIndex
 		}
 	#else
+		override public var keyCommands: [UIKeyCommand]? {
+			return [
+				UIKeyCommand(
+					title: "Expand Selection",
+					image: nil,
+					action: #selector(keyCommand(_:)),
+					input: "w",
+					modifierFlags: [.control],
+					propertyList: nil,
+					alternates: [],
+					discoverabilityTitle: "Expand Selection",
+					attributes: [],
+					state: .on
+				),
+				UIKeyCommand(
+					title: "Cancel Selection",
+					image: nil,
+					action: #selector(keyCommand(_:)),
+					input: "c",
+					modifierFlags: [.control],
+					propertyList: nil,
+					alternates: [],
+					discoverabilityTitle: "Cancel Selection",
+					attributes: [],
+					state: .on
+				),
+				UIKeyCommand(
+					title: "Jump to Next Word",
+					image: nil,
+					action: #selector(keyCommand(_:)),
+					input: "f",
+					modifierFlags: [.alternate],
+					propertyList: nil,
+					alternates: [],
+					discoverabilityTitle: "Jump to Next Word",
+					attributes: [],
+					state: .on
+				),
+				UIKeyCommand(
+					title: "Jump to Previous Word",
+					image: nil,
+					action: #selector(keyCommand(_:)),
+					input: "b",
+					modifierFlags: [.alternate],
+					propertyList: nil,
+					alternates: [],
+					discoverabilityTitle: "Jump to Previous Word",
+					attributes: [],
+					state: .on
+				),
+			]
+		}
+
+		@objc func keyCommand(_ keyCommand: UIKeyCommand) {
+			handleCommand(for: .characters(keyCommand.input ?? "", keyCommand.modifierFlags), selection: selectedRange)
+		}
+
 		func setSelectedRange(_ range: NSRange) {
 			selectedRange = range
 		}
@@ -85,7 +143,7 @@ public class TextView: NSUITextView {
 			   let range = NSRange(textRange, textView: self)
 			{
 				let position = range.location
-				if let handler = ReplacerResolver(trigger: .tap(position), selection: selectedRange, textView: self).result() {
+				if let handler = CommandResolver(trigger: .tap(position), selection: selectedRange, textView: self).result() {
 					touchThrottler.throttle {
 						self.performReplacement(handler, selection: self.selectedRange)
 					}

@@ -1,5 +1,5 @@
 //
-//  ReplacerResult.swift
+//  CommandResult.swift
 //
 //
 //  Created by Pat Nakajima on 5/28/24.
@@ -8,16 +8,16 @@
 import Foundation
 import TextStory
 
-struct ReplacerMutation {
+struct CommandMutation {
 	var range: NSRange
 	var content: String
 	var label: String
 	var shouldUpdateSelection: Bool
 }
 
-enum ReplacerResult {
-	case insert(ReplacerMutation),
-	     replace(ReplacerMutation),
+enum CommandResult {
+	case insert(CommandMutation),
+	     replace(CommandMutation),
 	     ignore
 
 	@MainActor func apply(to textView: TextView) {
@@ -53,7 +53,7 @@ enum ReplacerResult {
 					}
 				}
 
-			textView.replaceCharacters(in: replacer.range, with: replacer.content)
+				textView.replaceCharacters(in: replacer.range, with: replacer.content)
 			#else
 				textView.undoManager!.registerUndo(withTarget: textView) { target in
 					let replacementRange = replacer.range.shifted(endBy: -currentText.count)!

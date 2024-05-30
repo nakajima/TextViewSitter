@@ -1,5 +1,5 @@
 //
-//  NewlineReplacer.swift
+//  NewlineCommand.swift
 //
 //
 //  Created by Pat Nakajima on 5/28/24.
@@ -33,8 +33,8 @@ enum ListMarker {
 	}
 }
 
-@MainActor struct NewlineReplacer: Replacer {
-	func handler(for _: ReplacerTrigger, in textView: TextView, selection _: NSRange) -> ReplacerResult? {
+@MainActor struct NewlineCommand: Command {
+	func handler(for _: CommandTrigger, in textView: TextView, selection _: NSRange) -> CommandResult? {
 		guard let selectedRange = textView.selectedRanges.first?.rangeValue else {
 			return nil
 		}
@@ -57,7 +57,7 @@ enum ListMarker {
 		lineRange: NSRange,
 		line: String,
 		selectedRange: NSRange
-	) -> ReplacerResult? {
+	) -> CommandResult? {
 		// TODO: Handle nested lists
 		let listMarker: ListMarker? = if line.firstMatch(of: #/^-\s\[[\sx]\]\s/#) != nil {
 			.taskList

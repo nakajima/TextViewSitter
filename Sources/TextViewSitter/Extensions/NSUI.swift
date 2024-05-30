@@ -9,7 +9,13 @@ import Foundation
 import NSUI
 
 #if os(macOS)
-	typealias NSUITextViewDelegate = NSTextViewDelegate
+	public typealias NSUITextViewDelegate = NSTextViewDelegate
+	public typealias NSUIModifierFlags = NSEvent.ModifierFlags
 #else
-	typealias NSUITextViewDelegate = UITextViewDelegate
+	public typealias NSUITextViewDelegate = UITextViewDelegate
+	public typealias NSUIModifierFlags = UIKeyModifierFlags
+
+	extension NSUIModifierFlags {
+		static let option: NSUIModifierFlags = .alternate
+	}
 #endif

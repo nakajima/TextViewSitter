@@ -1,5 +1,5 @@
 //
-//  TaskListReplacer.swift
+//  TaskListCommand.swift
 //
 //
 //  Created by Pat Nakajima on 5/28/24.
@@ -8,8 +8,8 @@
 import Foundation
 import NSUI
 
-struct TaskListReplacer: Replacer {
-	func handler(for trigger: ReplacerTrigger, in textView: TextView, selection _: NSRange) -> ReplacerResult? {
+struct TaskListCommand: Command {
+	func handler(for trigger: CommandTrigger, in textView: TextView, selection _: NSRange) -> CommandResult? {
 		guard case let .tap(position) = trigger else {
 			return nil
 		}
